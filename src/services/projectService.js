@@ -19,3 +19,6 @@ export const updateProject = async (id, data) => {
 export const deleteProject = async (id) => {
     return await Project.findByIdAndDelete(id);
 };
+export const getProjectManager = async (id) => {
+    return await Project.findById(id).populate('managerId');
+}

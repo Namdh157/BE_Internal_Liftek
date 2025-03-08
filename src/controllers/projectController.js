@@ -47,4 +47,17 @@ export const deleteProject = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+export const getProjectManager = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const project = await getProjectManager(id);
+        if (!project) {
+            return res.status(404).json({ message: "Dự án không tồn tại" });
+        }
+
+        res.json({ manager: project.managerId });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 
