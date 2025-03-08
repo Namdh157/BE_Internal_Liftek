@@ -50,7 +50,7 @@ export const deleteProject = async (req, res) => {
 export const getProjectManager = async (req, res) => {
     try {
         const { id } = req.params;
-        const project = await getProjectManager(id);
+        const project = await projectService.fetchProjectManager(id);
         if (!project) {
             return res.status(404).json({ message: "Dự án không tồn tại" });
         }
