@@ -74,11 +74,16 @@ export const signIn = async (req, res) => {
 
     user.refreshToken = refreshToken;
     await user.save();
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+    });
     return res.status(200).json({
         message: "Dang nhap thanh cong",
         user,
         accessToken
-    })
+    });
+    
     } catch (error) {
         return res.status(500).json({
             message: error.message
