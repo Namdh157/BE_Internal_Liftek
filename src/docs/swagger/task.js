@@ -437,7 +437,85 @@ const taskSwagger = {
                 }
             }
         }
-    }
+    },
+    "/tasks/getTaskByProject/{id}": {
+    get: {
+      summary: "Lấy danh sách nhiệm vụ theo project",
+      description: "API trả về danh sách các nhiệm vụ theo project ID",
+      tags: ["Task"],
+      parameters: [
+        {
+          in: "path",
+          name: "id",
+          required: true,
+          description: "ID của Project",
+          schema: {
+            type: "string",
+            example: "60d4f6d3c2f2a00015f8a3d5",
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Lấy danh sách nhiệm vụ thành công",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "ok!",
+                  },
+                  data: {
+                    type: "array",
+                    items: {
+                      $ref: "#/components/schemas/Task",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "ID không hợp lệ",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "ID không hợp lệ",
+                  },
+                  data: {
+                    type: "null",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Lỗi server",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Internal server error",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
         
      
 }

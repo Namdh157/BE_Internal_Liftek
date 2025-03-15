@@ -163,3 +163,22 @@ export const deleteTask = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+//lấy vấn đề trong dự án
+export const getTaskByProject = async (req, res) => {
+     try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "ID không hợp lệ",
+                data: null
+            });
+        }
+        const tasks = await taskService.getTaskByProject(id);
+        res.status(200).json({
+            message: "ok!",
+            data: tasks
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
