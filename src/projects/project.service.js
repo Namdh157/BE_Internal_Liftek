@@ -1,6 +1,8 @@
 const Project = require("./project.model.js");
 const User = require("../users/user.model.js");
 const mongoose = require("mongoose");
+const removeAccents = require("remove-accents");
+
 exports.createProject = async (data) => {
   const existingProject = await Project.findOne({ code: data.code });
   const managerExists = await isUserExist(data.managerId);
@@ -85,27 +87,38 @@ exports.updateProject = async (id, data) => {
 
   let memberIds = project.members.map((m) => m.toString());
 
-  // Nếu muốn **thêm** thành viên mới
-  if (Array.isArray(data.addMembers) && data.addMembers.length > 0) {
-    for (let member of data.addMembers) {
-      if (!member._id) continue;
-      const isMemberValid = await isUserExist(member._id);
-      if (!isMemberValid) {
-        throw new Error(`Thành viên với id ${member._id} không tồn tại!`);
-      }
-      // Chỉ thêm nếu chưa tồn tại
-      if (!memberIds.includes(member._id)) {
-        memberIds.push(member._id);
-      }
+// Chuyển đổi object thành mảng nếu cần
+if (data.addMembers && typeof data.addMembers === "object" && !Array.isArray(data.addMembers)) {
+  data.addMembers = [data.addMembers];
+}
+if (data.removeMembers && typeof data.removeMembers === "object" && !Array.isArray(data.removeMembers)) {
+  data.removeMembers = [data.removeMembers];
+}
+
+// ✅ Nếu muốn **thêm** thành viên mới
+if (Array.isArray(data.addMembers) && data.addMembers.length > 0) {
+  for (let member of data.addMembers) {
+    if (!member._id) continue;
+    const isMemberValid = await isUserExist(member._id);
+    if (!isMemberValid) {
+      throw new Error(`Thành viên với id ${member._id} không tồn tại!`);
+    }
+    // Chỉ thêm nếu chưa tồn tại
+    if (!memberIds.includes(member._id)) {
+      memberIds.push(member._id);
     }
   }
+}
 
- // ✅ Nếu muốn **xóa** thành viên
-  if (Array.isArray(data.removeMembers) && data.removeMembers.length > 0) {
-    const removeIds = data.removeMembers.map(member => member._id);
-    memberIds = memberIds.filter(id => !removeIds.includes(id));
-  }
-  updateData.members = memberIds; // Cập nhật danh sách members
+// ✅ Nếu muốn **xóa** thành viên
+if (Array.isArray(data.removeMembers) && data.removeMembers.length > 0) {
+  const removeIds = data.removeMembers.map((member) => member._id);
+  memberIds = memberIds.filter((id) => !removeIds.includes(id));
+  console.log("removeIds", removeIds);
+}
+
+// Cập nhật danh sách thành viên
+updateData.members = memberIds;
 
   // Cập nhật các trường khác (nếu có)
   ["name", "code", "description", "status", "priority"].forEach((field) => {
@@ -115,7 +128,11 @@ exports.updateProject = async (id, data) => {
   });
 
   // Cập nhật vào MongoDB với `$set`
-  return await Project.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+  return await Project.findByIdAndUpdate(
+    id,
+    { $set: updateData },
+    { new: true }
+  );
 };
 
 exports.deleteProject = async (id) => {
@@ -143,6 +160,14 @@ exports.countProjects = async (userId) => {
     $or: [{ managerId: userId }, { members: { $in: [userId] } }],
   });
 };
+exports.countNameProjects = async (userId, name) => {
+  const cleanName = name.trim();
+  const slugNames = removeAccents.remove(cleanName.toLowerCase());
+  return await Project.countDocuments({
+    $or: [{ managerId: userId }, { members: { $in: [userId] } }],
+    slugName: { $regex: slugNames, $options: "i" },
+  });
+};
 // exports.FindProjectByTitle = async (idUser, keyword) => {
 //   return await Project.find({
 //     owner: idUser, // Chỉ lấy dự án của user đang đăng nhập
@@ -152,9 +177,13 @@ exports.countProjects = async (userId) => {
 exports.findNameProject = async (userId, name) => {
   try {
     const cleanName = name.trim();
+    const slugNames = removeAccents.remove(cleanName.toLowerCase());
     const projects = await Project.find({
-      members: { $in: [userId] }, // Kiểm tra xem userId có nằm trong mảng members không
-      name: { $regex: cleanName, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
+      $or: [
+        { members: { $in: [userId] } }, // Kiểm tra userId có trong mảng members
+        { managerId: userId }, // Kiểm tra userId có phải là manager
+      ],
+      slugName: { $regex: slugNames, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
     });
     return projects;
   } catch (error) {
