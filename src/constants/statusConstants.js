@@ -17,9 +17,13 @@ export const STATUS_TASK_WF = {
         name: STATUS.IN_PROGRESS,
         next: [STATUS.TEST, STATUS.FINISH, STATUS.PAUSE, STATUS.NOT_DO],
     },
+    [STATUS.TEST]: {
+        name: STATUS.TEST,
+        next: [STATUS.FINISH, STATUS.PAUSE, STATUS.NOT_DO],
+    },
     [STATUS.FINISH]: {
         name: STATUS.FINISH,
-        next: [STATUS.CLOSE],
+        next: [STATUS.CLOSE,STATUS.TEST],
     },
     [STATUS.CLOSE]: {
         name: STATUS.CLOSE,

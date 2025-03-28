@@ -6,16 +6,34 @@ import * as taskValidator from "./task.validation.js";
 import SuccessResponse from "../utils/SuccessResponse.js";
 import PAGINATE from "../constants/paginate.js";
 import { CHANGE_SOURCE, PERMISSIONS } from "../constants/index.js";
-import { STATUS } from "../constants/statusConstants.js";
+import { STATUS, STATUS_TASK_WF } from "../constants/statusConstants.js";
 
 /// thay đổi trạng thái
+
+// quyền thay đổi trạng thái
+
+ const canChangeStatus = (role, fromStatus, toStatus) => {
+    // Bước 1: Role có quyền thao tác với status hiện tại không
+    const allowedStatuses = PERMISSIONS.TASK_STATUS_CHANGE[role] || [];
+    if (!allowedStatuses.includes(fromStatus)) return false;
+
+    // Bước 2: Từ status hiện tại có được phép đi đến toStatus không (theo workflow)
+      const wf = STATUS_TASK_WF[fromStatus];
+      if (!wf) return false;
+
+  return wf.next.includes(toStatus);
+};
+
 export const updateTaskStatus = async (req, res,next) => {
   try {
     const user = req.user.role;
-    // const checkPemission = PERMISSIONS.UPDATE_TASK_STATUS.includes(user);
     const { taskId } = req.params;
     const userId = req.user._id;
     const { oldStatus, newStatus } = req.body;
+    // check quyền 
+    if (!canChangeStatus(user, oldStatus,newStatus)) {
+      return next(new Error("Bạn không có quyền thay đổi trạng thái"));
+   }
 
     if (!Object.values(STATUS).includes(oldStatus) || !Object.values(STATUS).includes(newStatus)) {
       return next(new Error("Trạng thái không hợp lệ !"));
@@ -181,6 +199,7 @@ export const addTask = async (req, res, next) => {
 // lấy tất cả task
 export const getAllTasks = async (req, res, next) => {
   try {
+   
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
@@ -208,6 +227,11 @@ export const getTaskById = async (req, res, next) => {
 // cập nhật task
 export const updateTask = async (req, res, next) => {
   try {
+    const user = req.user.role;
+    const checkPermission = PERMISSIONS.UPDATE_TASK.includes(user);
+    if (!checkPermission) {
+      return next(new Error("Bạn không có quyền cập nhật task"));
+    }
     const id = req.task._id;
     const dataBody = req.body;
     if (typeof dataBody.assigneeId === "string") {
@@ -264,6 +288,11 @@ export const updateTask = async (req, res, next) => {
 // xóa task
 export const deleteTask = async (req, res, next) => {
   try {
+    const user = req.user.role;
+    const checkPermission = PERMISSIONS.DELETE_TASK.includes(user);
+    if (!checkPermission) {
+      return next(new Error("Bạn không có quyền xóa task"));
+    }
     const taskId = req.task._id;
     const task = await taskService.deleteTask(taskId);
     if (!task) return next(new Error("Task không tìm thấy"));
@@ -276,6 +305,11 @@ export const deleteTask = async (req, res, next) => {
 
 export const deleteManyTask = async (req, res, next) => {
   try {
+    const user = req.user.role;
+    const checkPermission = PERMISSIONS.DELETE_TASK.includes(user);
+    if (!checkPermission) {
+      return next(new Error("Bạn không có quyền xóa task"));
+    }
     const ids = req.body.ids;
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
@@ -297,6 +331,7 @@ export const deleteManyTask = async (req, res, next) => {
 export const load = async (req, res, next, id) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log(id)
       return next(new Error("Status không phù hợp"));;
     }
     const task = await taskService.FindTaskById(id);

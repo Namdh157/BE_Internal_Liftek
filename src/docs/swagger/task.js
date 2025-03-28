@@ -122,7 +122,7 @@ const taskSwagger = {
       },
       {
         "in": "query",
-        "name": "pageSize",
+        "name": "limit",
         "required": false,
         "description": "Số lượng hiển thị",
         "schema": {
@@ -424,11 +424,12 @@ const taskSwagger = {
             parameters: [
                 {
                     in: "path",
-                    name: "id",
+                    name: "taskId",
                     required: true,
                     description: "ID task",
                     schema: {
-                        type: "string"
+                      type: "string",
+                      example:"67d8e401835b109d2e16bd8d"
                     }
                 }
             ],
