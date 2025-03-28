@@ -109,28 +109,28 @@ const taskSwagger = {
       description: "Trả về danh sách các công việc trong hệ thống",
 
       tags: ["Task"],
-      parameters: [
-        {
-          in: "query",
-          name: "page",
-          required: false,
-          description: "Phân trang hiện tại",
-          schema: {
-            type: "number",
-            example: 1,
-          },
-        },
-        {
-          in: "query",
-          name: "pageSize",
-          required: false,
-          description: "Số lượng hiển thị",
-          schema: {
-            type: "number",
-            example: 10,
-          },
-        },
-      ],
+       "parameters": [
+      {
+        "in": "query",
+        "name": "page",
+        "required" : false,
+        "description": "Phân trang hiện tại",
+        "schema": {
+          "type": "number",
+          "example": 1
+        }
+      },
+      {
+        "in": "query",
+        "name": "limit",
+        "required": false,
+        "description": "Số lượng hiển thị",
+        "schema": {
+          "type": "number",
+          "example": 10
+        }
+      },  
+    ],
       responses: {
         200: {
           description: "Lấy danh sách vấn đề thành công",
@@ -294,7 +294,7 @@ const taskSwagger = {
       parameters: [
         {
           in: "path",
-          name: "id",
+          name: "taskId",
           required: true,
           description: "ID nhiệm vụ",
           schema: {
@@ -418,57 +418,58 @@ const taskSwagger = {
       },
     },
     delete: {
-      summary: "Xoá vấn đề theo ID",
-      description: "API xoá dự án",
-      tags: ["Task"],
-      parameters: [
-        {
-          in: "path",
-          name: "id",
-          required: true,
-          description: "ID task",
-          schema: {
-            type: "string",
-          },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Xoá vấn đề thành công",
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  message: {
-                    type: "string",
-                    example: "Xoá vấn đề thành công",
-                  },
+            summary: "Xoá vấn đề theo ID",
+            description: "API xoá dự án",
+            tags: ["Task"],
+            parameters: [
+                {
+                    in: "path",
+                    name: "taskId",
+                    required: true,
+                    description: "ID task",
+                    schema: {
+                      type: "string",
+                      example:"67d8e401835b109d2e16bd8d"
+                    }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Xoá vấn đề thành công",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Xoá vấn đề thành công"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
-              },
-            },
-          },
-        },
-        404: {
-          description: "Không tìm thấy vấn đề",
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  message: {
-                    type: "string",
-                    example: "Không tìm thấy vấn đề",
-                  },
+                404: {
+                    description: "Không tìm thấy vấn đề",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Không tìm thấy vấn đề"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
-              },
-            },
-          },
-        },
-        500: {
-          description: "Lỗi server",
-        },
-      },
+                500: {
+                    description: "Lỗi server"
+                }
+            }
     },
   },
   "/tasks/{taskId}/status": {
@@ -681,6 +682,26 @@ const taskSwagger = {
         "Trả về danh sách công việc theo người giao, người nhận, thời gian",
       tags: ["Task"],
       parameters: [
+       {
+        "in": "query",
+        "name": "page",
+        "required" : false,
+        "description": "Phân trang hiện tại",
+        "schema": {
+          "type": "number",
+          "example": 1
+        }
+      },
+      {
+        "in": "query",
+        "name": "limit",
+        "required": false,
+        "description": "Số lượng hiển thị",
+        "schema": {
+          "type": "number",
+          "example": 10
+        }
+      },  
         {
           in: "path",
           name: "projectId",
@@ -699,14 +720,7 @@ const taskSwagger = {
             schema: {
               type: "object",
               properties: {
-                status: {
-                  type: "number",
-                  example: 1,
-                },
-                priority: {
-                  type: "number",
-                  example: 1,
-                },
+
                 assigneeId: {
                   type: "array",
                   items: {
@@ -790,7 +804,7 @@ const taskSwagger = {
             schema: {
               type: "object",
               properties: {
-                userId: {
+                assigneeId: {
                   type: "array",
                   items: {
                     type: "string",
