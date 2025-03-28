@@ -145,16 +145,16 @@ exports.FindTaskById = async (id) => {
 
 exports.getTaskById = async (id) => {
   return await Task.findById(id);
-}
+};
 
-exports.FindTaskByTitle = async (skip, limit, data) => {
-
-  return await Task
-    .find({
-      $or: [
-        { title: { $regex: new RegExp(`.*${data}*`, "i") } }, // Tìm kiếm một phần của chuỗi có dấu
-      ],
-    })
+exports.FindTaskByTitle = async (skip, limit, data, assigneeIds, projectId) => {
+  return await Task.find({
+    $or: [
+      { title: { $regex: new RegExp(`.*${data}*`, "i") } }, // Tìm kiếm một phần của chuỗi có dấu
+    ],
+    assigneeId: { $in: assigneeIds }, // Sửa lỗi: Truyền đúng biến danh sách assigneeId
+    projectId: projectId,
+  })
     .skip(skip)
     .limit(limit)
     .populate("assigneeId", "userName ")

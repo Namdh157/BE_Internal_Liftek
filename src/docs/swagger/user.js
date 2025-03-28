@@ -48,7 +48,7 @@ const userSwagger = {
       },
     },
   },
-  "/user/update-profile": {
+  "/users/update-profile": {
     put: {
       tags: ["User"],
       summary: "Cập nhật thông tin người dùng",
@@ -102,4 +102,4 @@ const userSwagger = {
   },
 };
 
-module.exports = {userSwagger};
+module.exports = { userSwagger };
