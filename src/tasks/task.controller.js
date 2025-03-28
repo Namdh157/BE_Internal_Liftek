@@ -7,6 +7,8 @@ const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
 const { CHANGE_SOURCE, PERMISSIONS } = require("../constants/index.js");
 const { STATUS } = require("../constants/statusConstants.js");
+const ErrorMiddleware = require("../middlewares/error.middleware.js");
+const projectService = require("../projects/project.service.js");
 
 /// thay đổi trạng thái
 exports.updateTaskStatus = async (req, res, next) => {
@@ -50,12 +52,109 @@ exports.updateTaskStatus = async (req, res, next) => {
 };
 
 // thêm user vào task
+// exports.addUserToTaskController = async (req, res, next) => {
+// try {
+//   const { taskId } = req.params;
+//   const { assigneeId } = req.body;
+//   const roleUser = req.user.role;
+//   const checkPermission = PERMISSIONS.ASSIGN_TASK.includes(roleUser);
+//   const projectId = task.projectId;
+
+//   if (!checkPermission) {
+//     return next({
+//       statusCode: 403,
+//       message: "You don't have permission to add user to task",
+//     });
+//   }
+//   if (!assigneeId) {
+//     return next({
+//       statusCode: 400,
+//       message: "AssigneeId is required",
+//     });
+//   }
+
+//   const task = await taskService.getTaskById(taskId);
+//   if (!task) {
+//     return next({
+//       statusCode: 404,
+//       message: "Task not found",
+//     });
+//   }
+
+//   if (task.assigneeId.includes(assigneeId)) {
+//     return next({
+//       statusCode: 400,
+//       message: "Người dùng đã được thêm rồi!!",
+//     });
+//   }
+
+//   const updatedTask = await taskService.addUserToTask(taskId, assigneeId);
+//   return new SuccessResponse(updatedTask).send(res);
+// } catch (error) {
+//   return next(error);
+// }
+// };
 exports.addUserToTaskController = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const { userId } = req.body;
-    const updatedTask = await taskService.addUserToTask(taskId, userId);
+    const { assigneeId } = req.body;
+    const roleUser = req.user.role;
 
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.ASSIGN_TASK.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
+
+    // Kiểm tra assigneeId có tồn tại không
+    if (!assigneeId) {
+      return next({
+        statusCode: 400,
+        message: "AssigneeId không tồn tạitại",
+      });
+    }
+    const task = await taskService.getTaskById(taskId);
+
+    if (!task) {
+      return next({
+        statusCode: 404,
+        message: "Không tìm thấy task",
+      });
+    }
+
+    // Lấy projectId từ task
+    const projectId = task.projectId;
+
+    // Kiểm tra xem assigneeId có trong project không
+    const project = await projectService.getProjectById(projectId);
+    console.log(project.members)
+    if (!project) {
+      return next({
+        statusCode: 404,
+        message: " Không tìm thấy Project",
+      });
+    }
+
+    if (!project.members.map(id => id.toString()).includes(assigneeId.toString())) {
+      return next({
+        statusCode: 400,
+        message: "Người nhận việc không có trong dự án",
+      });
+    }
+
+    // Kiểm tra trùng assignee trong Task
+    if (task.assigneeId.map(id => id.toString()).includes(assigneeId.toString())) {
+      return next({
+        statusCode: 400,
+        message: "Người nhận đã ở trong vấn đề",
+      });
+    }
+
+    // Thêm user vào task
+    const updatedTask = await taskService.addUserToTask(taskId, assigneeId);
     return new SuccessResponse(updatedTask).send(res);
   } catch (error) {
     return next(error);

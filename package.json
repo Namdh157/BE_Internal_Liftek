@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
     "bullmq": "^5.41.8",
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",

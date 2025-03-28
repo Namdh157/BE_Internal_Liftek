@@ -170,7 +170,9 @@ exports.FindTaskByTitle = async (skip, limit, data, assigneeIds, projectId) => {
     projectId: projectId,
   })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate("assigneeId", "userName ")
+    .populate("assignerId", "userName");
 };
 
 // check assigneeID có trong bảng user không

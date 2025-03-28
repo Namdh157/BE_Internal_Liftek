@@ -682,6 +682,26 @@ const taskSwagger = {
         "Trả về danh sách công việc theo người giao, người nhận, thời gian",
       tags: ["Task"],
       parameters: [
+       {
+        "in": "query",
+        "name": "page",
+        "required" : false,
+        "description": "Phân trang hiện tại",
+        "schema": {
+          "type": "number",
+          "example": 1
+        }
+      },
+      {
+        "in": "query",
+        "name": "limit",
+        "required": false,
+        "description": "Số lượng hiển thị",
+        "schema": {
+          "type": "number",
+          "example": 10
+        }
+      },  
         {
           in: "path",
           name: "projectId",
@@ -700,14 +720,6 @@ const taskSwagger = {
             schema: {
               type: "object",
               properties: {
-                status: {
-                  type: "number",
-                  example: 1,
-                },
-                priority: {
-                  type: "number",
-                  example: 1,
-                },
                 assigneeId: {
                   type: "array",
                   items: {
@@ -744,6 +756,116 @@ const taskSwagger = {
           },
         },
         400: {
+          description: "Lỗi phía server",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Internal server error",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/tasks/{taskId}/add-user": {
+    post: {
+      summary: "Thêm người dùng vào vấn đề",
+      description: "Thêm người dùng vào vấn đề",
+      tags: ["Task"],
+      security: [
+        {
+          BearerAuth: [],
+        },
+      ],
+      parameters: [
+        {
+          in: "path",
+          name: "taskId",
+          required: true,
+          description: "ID task",
+          schema: {
+            type: "string",
+            example: "67d8e401835b109d2e16bd8d",
+          },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                assigneeId: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                    example: "67dd0e3b4e734fdc9ab4ba24",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Thêm người dùng vào vấn đề",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Thêm người dùng vào vấn đề thành công",
+                  },
+                },
+              },
+            },
+          },
+        },
+        403: {
+          description: "Không đủ quyền",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Người dùng không đủ thẩm quyền",
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: "Task not found",
+
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Task không tìm thấy",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
           description: "Lỗi phía server",
           content: {
             "application/json": {
