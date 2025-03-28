@@ -1,4 +1,4 @@
-import transporter from "../config/nodeMailer.js";
+const transporter = require("../config/nodeMailer.js");
 
 const sendMail = async ({ to, subject, text, html }) => {
     try {
@@ -18,4 +18,4 @@ const sendMail = async ({ to, subject, text, html }) => {
     }
 }
 
-export default sendMail;
+module.exports = sendMail;

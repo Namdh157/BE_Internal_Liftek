@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const TagSchema = new mongoose.Schema({
     projectId: {
@@ -16,4 +16,4 @@ const TagSchema = new mongoose.Schema({
     },
 }, { timestamps: true});
 
-export default mongoose.model("Tag", TagSchema);
+module.exports = mongoose.model("Tag", TagSchema);

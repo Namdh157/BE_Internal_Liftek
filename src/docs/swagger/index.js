@@ -1,13 +1,13 @@
-import authSwagger from "./auth.js";
-import { authSchema } from "./components/authComponent.js";
-import { taskSchema } from "./components/taskComponent.js";
-import { projectSchema } from "./components/projectComponent.js";
-import taskSwagger from "./task.js";
-import projectSwagger from "./project.js";
-import dotenv from "dotenv";
-import { userSwagger } from "./user.js";
-import CmtSwagger from "./comment.js";
-import commentSchema from "./components/commentComponent.js";
+const authSwagger = require("./auth.js");
+const { authSchema } = require("./components/authComponent.js");
+const { taskSchema } = require("./components/taskComponent.js");
+const { projectSchema } = require("./components/projectComponent.js");
+const taskSwagger = require("./task.js");
+const projectSwagger = require("./project.js");
+const dotenv = require("dotenv");
+const { userSwagger } = require("./user.js");
+const CmtSwagger = require("./comment.js");
+const commentSchema = require("./components/commentComponent.js");
 dotenv.config();
 
 const domainUrl = process.env.DOMAIN_SWAGGER
@@ -57,4 +57,4 @@ const swaggerDocs = {
   ],
 };
 
-export default swaggerDocs;
+module.exports = swaggerDocs;

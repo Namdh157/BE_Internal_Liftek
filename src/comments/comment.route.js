@@ -1,5 +1,5 @@
-import express from "express";
-import * as commentController from "./comment.controller.js";
+const express = require("express");
+const  commentController = require("./comment.controller.js");
 
 const routerCmt = express.Router();
 
@@ -9,4 +9,4 @@ routerCmt.route("/")
 routerCmt.route("/:taskId")
     .get(commentController.getAllComments);
 routerCmt.param("taskId", commentController.load);
-export default routerCmt;
+module.exports = routerCmt;

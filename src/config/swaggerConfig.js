@@ -1,6 +1,6 @@
-import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import swaggerDocs from "../docs/swagger/index.js";
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocs = require("../docs/swagger/index.js");
 
 
 // Cấu hình Swagger
@@ -12,6 +12,6 @@ const options = {
 // Khởi tạo Swagger
 const swaggerSpec = swaggerJsdoc(options);
 
-export default (app) => {
+module.exports = (app) => {
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };

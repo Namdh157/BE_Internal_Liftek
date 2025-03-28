@@ -53,4 +53,4 @@ const taskSchema = {
   },
 };
 
-export { taskSchema };
+module.exports = {taskSchema};

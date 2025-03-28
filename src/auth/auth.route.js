@@ -1,6 +1,6 @@
-import { Router } from "express";
-import authMiddleware from "../middlewares/auth.middleware.js";
-import * as authController from "./auth.controller.js";
+const { Router } = require("express");
+const authMiddleware = require("../middlewares/auth.middleware.js");
+const authController = require("./auth.controller.js");
 
 const routerAuth = Router();
 
@@ -12,4 +12,4 @@ routerAuth.post("/refresh-token", authMiddleware, authController.getNewAccessTok
 routerAuth.post("/forgot-password", authController.forgotPassword);
 routerAuth.post("/reset-password", authController.resetPassword);
 
-export default routerAuth;
+module.exports = routerAuth;

@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
-import * as projectService from "./project.service.js";
-import SuccessResponse from "../utils/SuccessResponse.js";
-import PAGINATE from "../constants/paginate.js";
-import jwt from "jsonwebtoken";
-export const addProject = async (req, res, next) => {
+const mongoose = require("mongoose");
+const  projectService = require("./project.service.js");
+const SuccessResponse = require("../utils/SuccessResponse.js");
+const PAGINATE = require("../constants/paginate.js");
+const jwt = require("jsonwebtoken");
+exports.addProject = async (req, res, next) => {
   try {
     const project = await projectService.createProject(req.body);
     return new SuccessResponse(project).send(res);
@@ -12,7 +12,7 @@ export const addProject = async (req, res, next) => {
   }
 };
 
-export const getAllProjects = async (req, res, next) => {
+exports.getAllProjects = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
@@ -34,7 +34,7 @@ export const getAllProjects = async (req, res, next) => {
   }
 };
 
-export const getProjectById = async (req, res, next) => {
+exports.getProjectById = async (req, res, next) => {
   try {
     const project = await projectService.getProjectById(req.project._id);
     if (!project) return next(new Error("Project không tồn tại"));
@@ -45,7 +45,7 @@ export const getProjectById = async (req, res, next) => {
   }
 };
 
-export const updateProject = async (req, res, next) => {
+exports.updateProject = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.project._id))
       return next(new Error("ID không hợp lệ"));
@@ -62,7 +62,7 @@ export const updateProject = async (req, res, next) => {
   }
 };
 
-export const deleteProject = async (req, res, next) => {
+exports.deleteProject = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.idProject)) {
       return next(new Error("ID không hợp lệ"));
@@ -77,7 +77,7 @@ export const deleteProject = async (req, res, next) => {
   }
 };
 
-export const getProjectManager = async (req, res, next) => {
+exports.getProjectManager = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id))
@@ -91,7 +91,7 @@ export const getProjectManager = async (req, res, next) => {
     return next(error);
   }
 };
-export const getProjectMembers = async (req, res, next) => {
+exports.getProjectMembers = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id))
@@ -106,7 +106,7 @@ export const getProjectMembers = async (req, res, next) => {
     return next(error);
   }
 };
-export const load = async (req, res, next, id) => {
+exports.load = async (req, res, next, id) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(new Error("ID không hợp lệ"));
@@ -121,7 +121,7 @@ export const load = async (req, res, next, id) => {
     return next(error);
   }
 };
-// export const searchProject = async (req, res, next) => {
+// exports.searchProject = async (req, res, next) => {
 //   try {
 //     const { q } = req.query.search; // Lấy từ khóa từ query (thay vì params)
 //     const idUser = req.user._id;
@@ -137,7 +137,7 @@ export const load = async (req, res, next, id) => {
 //     return next(error);
 //   }
 // };
-export const getNameProject = async (req, res, next) => {
+exports.getNameProject = async (req, res, next) => {
   try {
     // Lấy token từ header
     const token = req.headers.authorization?.split(" ")[1];

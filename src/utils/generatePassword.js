@@ -1,4 +1,4 @@
-export const generateRandomPassword = (length = 10) => {
+const generateRandomPassword = (length = 10) => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*";
     let password = "";
     for (let i = 0; i < length; i++) {
@@ -6,3 +6,5 @@ export const generateRandomPassword = (length = 10) => {
     }
     return password;
 };
+
+module.exports = generateRandomPassword;

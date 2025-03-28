@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const TaskDependency = new mongoose.Schema({
     taskId: {
@@ -20,4 +20,4 @@ const TaskDependency = new mongoose.Schema({
 }, { timestamps: true});
 
 
-export default mongoose.model("Task_dependency", TaskDependency);
+module.exports = mongoose.model("Task_dependency", TaskDependency);

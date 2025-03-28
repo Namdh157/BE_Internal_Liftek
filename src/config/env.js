@@ -1,8 +1,8 @@
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 
 dotenv.config();
 
-export default {
+module.exports = {
     APP_NAME: process.env.APP_NAME,
     BASE_URL: process.env.BASE_URL,
     CLIENT_URL: process.env.CLIENT_URL,

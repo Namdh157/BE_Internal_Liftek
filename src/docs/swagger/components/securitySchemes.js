@@ -5,4 +5,4 @@ const securitySchemes = {
         bearerFormat: "JWT"
     }
 }
-export { securitySchemes };
+module.exports = {securitySchemes};

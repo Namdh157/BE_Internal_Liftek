@@ -35,4 +35,4 @@ const userSchema = {
     }
 }
 
-export { userSchema };
+module.exports = {userSchema};

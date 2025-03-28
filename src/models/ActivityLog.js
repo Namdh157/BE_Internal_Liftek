@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const ActivityLogSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Người thực hiện hành động
@@ -12,4 +12,4 @@ const ActivityLogSchema = new mongoose.Schema({
 // Tạo Model từ Schema
 const ActivityLog = mongoose.model("ActivityLog", ActivityLogSchema);
 
-export default ActivityLog;
+module.exports = ActivityLog;

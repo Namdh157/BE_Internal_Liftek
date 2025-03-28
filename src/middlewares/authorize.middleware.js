@@ -1,6 +1,6 @@
-import { PERMISSIONS } from "../constants";
+const { PERMISSIONS } = require("../constants");
 
-export const authorize = (action) => {
+exports.authorize = (action) => {
     return (req, res, next) => {
         try {
             const { role } = req.user;

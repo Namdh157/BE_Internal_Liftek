@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import { STATUS } from "../constants/statusConstants.js";
-import { PRIORITY } from "../constants/index.js";
+const mongoose = require("mongoose");
+const { STATUS } = require("../constants/statusConstants.js");
+const { PRIORITY } = require("../constants/index.js");
 const TaskSchema = new mongoose.Schema(
   {
     title: {
@@ -45,4 +45,4 @@ const TaskSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-export default mongoose.model("Task", TaskSchema);
+module.exports = mongoose.model("Task", TaskSchema);

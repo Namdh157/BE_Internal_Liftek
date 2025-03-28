@@ -3,4 +3,4 @@ const PAGINATE = {
     LIMIT: 10
 }
 
-export default PAGINATE;
+module.exports = PAGINATE;

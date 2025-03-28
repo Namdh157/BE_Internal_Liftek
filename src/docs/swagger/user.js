@@ -102,4 +102,4 @@ const userSwagger = {
   },
 };
 
-export { userSwagger };
+module.exports = {userSwagger};

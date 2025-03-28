@@ -51,4 +51,4 @@ const projectSchema = {
   },
 };
 
-export { projectSchema };
+module.exports = {projectSchema};

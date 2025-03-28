@@ -1,6 +1,6 @@
-import Joi from "joi"
+const Joi = require("joi")
 
-export const signUpValidator = Joi.object({
+exports.signUpValidator = Joi.object({
      userName: Joi.string().required().trim().min(6).max(30).messages({
         "string.empty": "userName không được để trống",
         "any.required": "userName là bắt buộc",
@@ -29,7 +29,7 @@ export const signUpValidator = Joi.object({
 })
 
 
-export const signInValidator = Joi.object({
+exports.signInValidator = Joi.object({
    email: Joi.string().trim().required().email().messages({
       "string.empty": "email không được để trống",
       "any.required": "email là bắt buộc",

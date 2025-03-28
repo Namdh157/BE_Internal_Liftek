@@ -1,8 +1,8 @@
-import { uploadSingleFile } from "../services/cloudinaryService.js";
-import SuccessResponse from "../utils/SuccessResponse.js";
-import * as userService from "./user.service.js";
+const { uploadSingleFile } = require("../services/cloudinaryService.js");
+const SuccessResponse = require("../utils/SuccessResponse.js");
+const  userService = require("./user.service.js");
 
-export const getUserById = async (req, res, next) => {
+exports.getUserById = async (req, res, next) => {
     const id = req.user._id;
     try {
         const user = await userService.getUserById(id);
@@ -13,7 +13,7 @@ export const getUserById = async (req, res, next) => {
     }
 }
 
-export const getAllUsers = async (req, res, next) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -26,7 +26,7 @@ export const getAllUsers = async (req, res, next) => {
         return next(error);
     }
 }
-export const updateUser = async (req, res, next) => {
+exports.updateUser = async (req, res, next) => {
     try {
         const id = req.user._id;
         if (req.file) {
@@ -50,7 +50,7 @@ export const updateUser = async (req, res, next) => {
     }
 }
 
-export const load = async (req, res, next, id) => {
+exports.load = async (req, res, next, id) => {
     try {
         const user = await userService.getUserById(id);
         if (!user) {

@@ -1,15 +1,15 @@
-import User from "../users/user.model.js";
-import * as authValidation from "./auth.validation.js";
-import jwt from "jsonwebtoken";
-import env from "../config/env.js"
-import * as tokenUtils from "../utils/tokenUtils.js";
-import * as emailTemplate from "../services/templateService.js";
-import * as emailQueue from "../queues/index.js";
-import SuccessResponse from "../utils/SuccessResponse.js";
-import crypto from "crypto";
+const User = require("../users/user.model.js");
+const  authValidation = require("./auth.validation.js");
+const jwt = require("jsonwebtoken");
+const env = require("../config/env.js")
+const  tokenUtils = require("../utils/tokenUtils.js");
+const  emailTemplate = require("../services/templateService.js");
+const  emailQueue = require("../queues/index.js");
+const SuccessResponse = require("../utils/SuccessResponse.js");
+const crypto = require("crypto");
 
 //đăng ký
-export const register = async (req, res, next) => {
+exports.register = async (req, res, next) => {
     try {
         const { email, password, phone, userName } = req.body;
         const { error } = authValidation.signUpValidator.validate(req.body, { abortEarly: false });
@@ -59,7 +59,7 @@ export const register = async (req, res, next) => {
     }
 };
 //xác thực email
-export const verifyEmail = async (req, res, next) => {
+exports.verifyEmail = async (req, res, next) => {
 
     try {
         const { token } = req.params;
@@ -79,7 +79,7 @@ export const verifyEmail = async (req, res, next) => {
     }
 };
 //đăng nhập
-export const login = async (req, res, next) => {
+exports.login = async (req, res, next) => {
     try {
         //validate
         const { error } = authValidation.signInValidator.validate(req.body, { abortEarly: false })
@@ -124,7 +124,7 @@ export const login = async (req, res, next) => {
     }
 }
 //làm mới token
-export const getNewAccessToken = async (req, res, next) => {
+exports.getNewAccessToken = async (req, res, next) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) return next(new Error("Token không hợp lệ"));
@@ -139,7 +139,7 @@ export const getNewAccessToken = async (req, res, next) => {
     }
 }
 //đăng xuất
-export const logout = async (req, res, next) => {
+exports.logout = async (req, res, next) => {
     try {
         const id = req.user._id;
         const user = await User.findById(id);
@@ -156,7 +156,7 @@ export const logout = async (req, res, next) => {
     }
 }
 // gửi mail mat khau mới
-export const forgotPassword = async (req, res, next) => {
+exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
 
@@ -187,7 +187,7 @@ export const forgotPassword = async (req, res, next) => {
     }
 }
 //  đặt lại mật khẩu bằng
-export const resetPassword = async (req, res, next) => {
+exports.resetPassword = async (req, res, next) => {
     try {
         const { token } = req.query;
         const { password, confirmPassword } = req.body;

@@ -1,4 +1,4 @@
-import { createClient } from "redis";
+const { createClient } = require("redis");
 
 const redisClient = createClient({
     host: process.env.REDIS_HOST || "localhost",
@@ -20,4 +20,4 @@ const connectRedis = () => {
    }
 }
 
-export { redisClient, connectRedis };
+module.exports = {redisClient, connectRedis};

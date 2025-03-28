@@ -1,5 +1,5 @@
-import express from "express";
-import * as projectController from "./project.controller.js";
+const express = require("express");
+const  projectController = require("./project.controller.js");
 
 const routerProject = express.Router();
 routerProject.get("/search", projectController.getNameProject);
@@ -21,4 +21,4 @@ routerProject.get("/:id/members", projectController.getProjectMembers);
 
 // routerProject.get("/search", projectController.searchProject);
 
-export default routerProject;
+module.exports = routerProject;

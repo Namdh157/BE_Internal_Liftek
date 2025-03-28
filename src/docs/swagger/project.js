@@ -508,4 +508,4 @@ const projectSwagger = {
   },
 };
 
-export default projectSwagger;
+module.exports = projectSwagger;

@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { PRIORITY, STATUS_PROJECT } from "../constants/index.js";
+const mongoose = require("mongoose");
+const { PRIORITY, STATUS_PROJECT } = require("../constants/index.js");
 
 const ProjectSchema = new mongoose.Schema(
   {
@@ -27,4 +27,4 @@ const ProjectSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Project", ProjectSchema);
+module.exports = mongoose.model("Project", ProjectSchema);

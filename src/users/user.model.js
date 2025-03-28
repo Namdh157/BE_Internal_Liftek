@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
-import { ROLES } from "../constants/index.js";
-import crypto from "crypto";
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const { ROLES } = require("../constants/index.js");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -73,4 +73,4 @@ userSchema.statics.findByEmailOrPhone = async function (identifier) {
   });
 }
 
-export default mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

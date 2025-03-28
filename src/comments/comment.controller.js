@@ -1,11 +1,11 @@
 
 
-import * as commentService from "./comment.service.js";
-import * as taskService from "../tasks/task.service.js";
-import SuccessResponse from "../utils/SuccessResponse.js";
-import PAGINATE from "../constants/paginate.js";
+const commentService = require("./comment.service.js");
+const taskService = require("../tasks/task.service.js");
+const SuccessResponse = require("../utils/SuccessResponse.js");
+const PAGINATE = require("../constants/paginate.js");
 
-export const addComment = async (req, res, next) => {
+exports.addComment = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const { content, taskId } = req.body; // Lấy content từ request body
@@ -20,7 +20,7 @@ export const addComment = async (req, res, next) => {
     next(error);
   }
 };
-export const getAllComments = async (req, res, next) => {
+exports.getAllComments = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
@@ -41,7 +41,7 @@ export const getAllComments = async (req, res, next) => {
     next(error);
   }
 };
-export const load = async (req, res, next, id) => {
+exports.load = async (req, res, next, id) => {
   try {
     const task = await taskService.getTaskById(id);
     if (!task) {

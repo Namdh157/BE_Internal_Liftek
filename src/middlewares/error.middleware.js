@@ -19,7 +19,11 @@ const ErrorMiddleware = {
         if(err.name === "ValidationError") {
             statusCode = 400;
             message = Object.values(err.errors).map(val => val.message).join(", ");
-        }
+        } 
+        if(message === "jwt expired") {
+            statusCode = 401;
+            message = "Token đã hết hạn";
+        }     
 
         res.status(statusCode).json({
             success: false,
@@ -38,4 +42,4 @@ const ErrorMiddleware = {
     }
 }
 
-export default ErrorMiddleware;
+module.exports = ErrorMiddleware;

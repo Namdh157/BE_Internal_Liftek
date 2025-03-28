@@ -1,4 +1,4 @@
-import { STATUS } from "../../constants/statusConstants.js";
+const { STATUS } = require("../../constants/statusConstants.js");
 
 const taskSwagger = {
   "/tasks": {
@@ -104,10 +104,10 @@ const taskSwagger = {
         },
       },
     },
-     get: {
+    get: {
       summary: "Lấy danh sách tất cả công việc",
-       description: "Trả về danh sách các công việc trong hệ thống",
-      
+      description: "Trả về danh sách các công việc trong hệ thống",
+
       tags: ["Task"],
        "parameters": [
       {
@@ -160,7 +160,7 @@ const taskSwagger = {
         },
       },
     },
-      delete: {
+    delete: {
       summary: "Xoá nhiều vấn đề theo ID",
       description: "API xoá dự án",
       tags: ["Task"],
@@ -489,7 +489,7 @@ const taskSwagger = {
           },
         },
       ],
-        requestBody: {
+      requestBody: {
         required: true,
         content: {
           "application/json": {
@@ -501,10 +501,10 @@ const taskSwagger = {
                   example: 2,
                 },
                 newStatus: {
-                  type:"number",
-                  example: STATUS.FINISH
+                  type: "number",
+                  example: STATUS.FINISH,
                 },
-              }
+              },
             },
           },
         },
@@ -634,6 +634,16 @@ const taskSwagger = {
             example: "Tạo API cho hệ thống",
           },
         },
+        {
+          in: "query",
+          name: "projectId",
+          required: true,
+          description: "Tìm kiếm công việc theo người nhận thuộc 1 project",
+          schema: {
+            type: "string",
+            example: "67d8dd65edc970e80f2ed0a4",
+          },
+        },
       ],
       responses: {
         200: {
@@ -668,7 +678,8 @@ const taskSwagger = {
   "/tasks/filter/{projectId}": {
     post: {
       summary: "Lọc công việc theo người giao, người nhận, thời gian",
-      description: "Trả về danh sách công việc theo người giao, người nhận, thời gian",
+      description:
+        "Trả về danh sách công việc theo người giao, người nhận, thời gian",
       tags: ["Task"],
       parameters: [
         {
@@ -716,7 +727,7 @@ const taskSwagger = {
                   type: "string",
                   example: "2025-04-30",
                 },
-              }
+              },
             },
           },
         },
@@ -751,8 +762,6 @@ const taskSwagger = {
       },
     },
   },
- 
-
 };
 
-export default taskSwagger;
+module.exports = taskSwagger;

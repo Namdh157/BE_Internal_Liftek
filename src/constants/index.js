@@ -1,45 +1,45 @@
-import { STATUS } from "./statusConstants.js";
+const { STATUS } = require("./statusConstants.js");
 
-export const ROLES = {
+const ROLES = {
   PM: 0,
   DEV: 1,
   TEST: 2,
   BA: 3,
   USER: 4,
 };
-export const STATUS_PROJECT = {
+const STATUS_PROJECT = {
   PROGRESSING: 0,
   DONE: 1,
   ARCHIVED: 2,
 };
-export const PRIORITY = {
+const PRIORITY = {
   LOW: 0,
   MEDIUM: 1,
   HIGH: 2,
 };
-export const STATUS_TASK = {
+const STATUS_TASK = {
   TO_DO: 0,
   IN_PROGRESS: 1,
   COMPLETED: 2,
   BLOCKED: 3,
 };
-export const STATUS_TASK_CHANGE = {
+const STATUS_TASK_CHANGE = {
   TO_DO: 0,
   IN_PROGRESS: 1,
   COMPLETED: 2,
   BLOCKED: 3,
 };
-export const CHANGE_SOURCE = {
+const CHANGE_SOURCE = {
   MANUAL: 0,
   SYSTEM: 1,
   API: 2,
 };
-export const COMMENT = {
+const COMMENT = {
   TASK: "TASK",
   BUG: "BUG",
   STORY: "STORY",
 };
-export const STATUS_CODE = {
+const STATUS_CODE = {
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
@@ -49,7 +49,7 @@ export const STATUS_CODE = {
   INTERNAL_SERVER: 500,
 };
 
-export const PERMISSIONS = {
+const PERMISSIONS = {
   ASSIGN_TASK: [ROLES.PM],
 
   CREATE_TASK: [ROLES.PM, ROLES.DEV, ROLES.TEST, ROLES.BA],
@@ -61,6 +61,7 @@ export const PERMISSIONS = {
   UPDATE_COMMENT: [ROLES.PM, ROLES.DEV, ROLES.TEST, ROLES.BA],
 
   TASK_STATUS_CHANGE: {
+    [ROLES.PM]: Object.values(STATUS),
     [ROLES.DEV]: [STATUS.IN_PROGRESS, STATUS.FINISH],
     [ROLES.TEST]: [STATUS.TEST,STATUS.FINISH,STATUS.IN_PROGRESS],
     [ROLES.BA]: [],
@@ -72,4 +73,16 @@ export const PERMISSIONS = {
   CREATE_PROJECT: [ROLES.PM],
   UPDATE_PROJECT: [ROLES.PM],
   DELETE_PROJECT: [ROLES.PM],
+};
+
+module.exports = {
+  ROLES,
+  STATUS_PROJECT,
+  PRIORITY,
+  STATUS_TASK,
+  STATUS_TASK_CHANGE,
+  CHANGE_SOURCE,
+  COMMENT,
+  STATUS_CODE,
+  PERMISSIONS,
 };

@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import { STATUS } from "../constants/statusConstants.js";
-import { CHANGE_SOURCE } from "../constants/index.js";
+const mongoose = require("mongoose");
+const { STATUS } = require("../constants/statusConstants.js");
+const { CHANGE_SOURCE } = require("../constants/index.js");
 
 const JobStatusChangeSchema = new mongoose.Schema({
     taskId: { type: mongoose.Schema.Types.ObjectId, ref: "Task", required: true },
@@ -41,4 +41,4 @@ JobStatusChangeSchema.statics.createHistory = async function ({
 // Tạo Model từ Schema
 const JobStatusChange = mongoose.model("JobStatusChange", JobStatusChangeSchema);
 
-export default JobStatusChange;
+module.exports = JobStatusChange;

@@ -703,4 +703,4 @@ const authSwagger = {
   },
 };
 
-export default authSwagger;
+module.exports = authSwagger;

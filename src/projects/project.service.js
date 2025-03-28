@@ -1,7 +1,7 @@
-import Project from "./project.model.js";
-import User from "../users/user.model.js";
-import mongoose from "mongoose";
-export const createProject = async (data) => {
+const Project = require("./project.model.js");
+const User = require("../users/user.model.js");
+const mongoose = require("mongoose");
+exports.createProject = async (data) => {
   const existingProject = await Project.findOne({ code: data.code });
   const managerExists = await isUserExist(data.managerId);
   if (!managerExists) {
@@ -42,7 +42,7 @@ export const createProject = async (data) => {
   });
 };
 
-export const getAllProjects = async (userId, skip, limit) => {
+exports.getAllProjects = async (userId, skip, limit) => {
   return await Project.find({
     $or: [{ managerId: userId }, { members: { $in: [userId] } }],
   })
@@ -57,11 +57,11 @@ export const getAllProjects = async (userId, skip, limit) => {
       select: "userName email phone avatar -_id",
     });
 };
-export const getProjectById = async (id) => {
+exports.getProjectById = async (id) => {
   return await Project.findById(id);
 };
 
-export const updateProject = async (id, data) => {
+exports.updateProject = async (id, data) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error("ID không hợp lệ!");
   }
@@ -118,16 +118,16 @@ export const updateProject = async (id, data) => {
   return await Project.findByIdAndUpdate(id, { $set: updateData }, { new: true });
 };
 
-export const deleteProject = async (id) => {
+exports.deleteProject = async (id) => {
   return await Project.findByIdAndDelete(id);
 };
-export const fetchProjectManager = async (id) => {
+exports.fetchProjectManager = async (id) => {
   return await Project.findById(id).populate({
     path: "managerId",
     select: "-password -refreshToken",
   });
 };
-export const fetchProjectMembers = async (projectId) => {
+exports.fetchProjectMembers = async (projectId) => {
   return await Project.findById(projectId).populate({
     path: "members",
     select: "-password -refreshToken -role",
@@ -138,18 +138,18 @@ const isUserExist = async (id) => {
   return !!user; // true nếu tồn tại, false nếu không
 };
 
-export const countProjects = async (userId) => {
+exports.countProjects = async (userId) => {
   return await Project.countDocuments({
     $or: [{ managerId: userId }, { members: { $in: [userId] } }],
   });
 };
-// export const FindProjectByTitle = async (idUser, keyword) => {
+// exports.FindProjectByTitle = async (idUser, keyword) => {
 //   return await Project.find({
 //     owner: idUser, // Chỉ lấy dự án của user đang đăng nhập
 //     name: { $regex: keyword, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
 //   });
 // };
-export const findNameProject = async (userId, name) => {
+exports.findNameProject = async (userId, name) => {
   try {
     const cleanName = name.trim();
     const projects = await Project.find({

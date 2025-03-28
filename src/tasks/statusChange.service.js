@@ -1,5 +1,5 @@
-import JobStatusChange from "./task_status_change.model.js";
-import Task from "./task.model.js";
+const JobStatusChange = require("./task_status_change.model.js");
+const Task = require("./task.model.js");
 
 const updateTaskStatusService = async (taskId, oldStatus, newStatus, userId, reason, notes, changeSource) => {
   const task = await Task.findById(taskId);
@@ -24,4 +24,4 @@ const updateTaskStatusService = async (taskId, oldStatus, newStatus, userId, rea
   return task;
 };
 
-export { updateTaskStatusService };
+module.exports = {updateTaskStatusService};

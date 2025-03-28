@@ -26,4 +26,4 @@ const commentSchema = {
     }
 } 
 
-export default commentSchema;
+module.exports = commentSchema;

@@ -1,10 +1,10 @@
-import express from "express";
-import routerAuth from "../auth/auth.route.js";
-import routerProject from "../projects/project.route.js";
-import routerTask from "../tasks/task.route.js";
-import routerCmt from "../comments/comment.route.js";
-import routeUser from "../users/user.route.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+const express = require("express");
+const routerAuth = require("../auth/auth.route.js");
+const routerProject = require("../projects/project.route.js");
+const routerTask = require("../tasks/task.route.js");
+const routerCmt = require("../comments/comment.route.js");
+const routeUser = require("../users/user.route.js");
+const authMiddleware = require("../middlewares/auth.middleware.js");
 const router = express.Router();
 
 router.use("/auth", routerAuth);
@@ -20,4 +20,4 @@ Object.entries(routes).forEach(([path, rou]) => {
     router.use(path, authMiddleware, rou);
 });
 
-export default router;
+module.exports = router;

@@ -33,4 +33,4 @@ class SuccessResponse {
     }
 }
 
-export default SuccessResponse;
+module.exports = SuccessResponse;

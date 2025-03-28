@@ -1,13 +1,13 @@
-import express from "express";
-import env from "./config/env.js";
-import cors from "cors";
-import router from "./routes/index.js";
-import connectDB from "./config/db.js";
-import cookieParser from "cookie-parser";
-import swaggerDocs from "./config/swaggerConfig.js";
-import { connectRedis } from "./config/redisClient.js";
-import ErrorMiddleware from "./middlewares/error.middleware.js";
-import listEndpoints from "express-list-endpoints"; // eslint-disable-line
+const express = require("express")
+const env = require("./config/env.js");
+const cors = require("cors");
+const router = require("./routes/index.js");
+const connectDB = require("./config/db.js");
+const cookieParser = require("cookie-parser");
+const swaggerDocs = require("./config/swaggerConfig.js");
+const { connectRedis } = require("./config/redisClient.js");
+const ErrorMiddleware = require("./middlewares/error.middleware.js");
+const listEndpoints = require("express-list-endpoints"); // eslint-disable-line
 const app = express();
 const PORT = env.PORT;
 
@@ -35,5 +35,5 @@ app.use(ErrorMiddleware.errorHandle); // xử lý lỗi chung
 
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server đang chạy tại ${process.env.BASE_URL}`);  
+  console.log(`Server đang chạy tại ${process.env.BASE_URL}`);
 });

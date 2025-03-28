@@ -1,7 +1,7 @@
-import Comment from "./comment.model.js";
+const Comment = require("./comment.model.js");
 
 
-export const createComment = async (data) => {
+exports.createComment = async (data) => {
   try {
     if (!data.taskId || !data.userId || !data.content) {
       throw new Error("Thiếu dữ liệu bắt buộc");
@@ -12,7 +12,7 @@ export const createComment = async (data) => {
     throw new Error("Không thể tạo bình luận. Vui lòng thử lại." + error.message);
   }
 };
-export const getAllcmt = async (taskId, skip, limit) => {
+exports.getAllcmt = async (taskId, skip, limit) => {
   try {
     const comments = await Comment.find({ taskId: taskId })
       .skip(skip)
@@ -26,7 +26,7 @@ export const getAllcmt = async (taskId, skip, limit) => {
     throw new Error("Không thể lấy bình luận. Vui lòng thử lại." + error.message);
   }
 };
-export const countComment = async (taskId) => {
+exports.countComment = async (taskId) => {
   try {
     const total = await Comment.countDocuments({ taskId: taskId });
     return total;

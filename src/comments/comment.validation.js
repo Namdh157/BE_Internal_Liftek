@@ -1,6 +1,6 @@
-import Joi from "joi";
+const Joi = require("joi");
 
-export const validateComment = (req, res, next) => {
+exports.validateComment = (req, res, next) => {
   const schema = Joi.object({
     userId: Joi.string().trim().hex().length(24).required(),
     content: Joi.string().min(3).max(500).required(),

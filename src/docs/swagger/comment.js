@@ -124,4 +124,4 @@ const CmtSwagger = {
     },
   },
 };
-export default CmtSwagger;
+module.exports = CmtSwagger;

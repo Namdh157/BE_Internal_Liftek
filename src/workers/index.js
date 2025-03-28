@@ -1,7 +1,7 @@
-import { Worker } from "bullmq";
-import dotenv from "dotenv";
-import { emailQueue } from "../queues/index.js";
-import emailTask from "../queues/Tasks/sendMailQueue.js";
+const { Worker } = require("bullmq");
+const dotenv = require("dotenv");
+const { emailQueue } = require("../queues/index.js");
+const emailTask = require("../queues/Tasks/sendMailQueue.js");
 
 dotenv.config();
 

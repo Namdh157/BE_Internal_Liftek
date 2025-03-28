@@ -1,5 +1,5 @@
-import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
+const cloudinary = require("../config/cloudinary.js");
+const streamifier = require("streamifier");
 
 /**
  * Upload một file lên Cloudinary
@@ -37,4 +37,4 @@ const uploadMultipleFiles = async (buffer, folder = "LifeTex_TTS") => {
     return urls;
 }
 
-export { uploadSingleFile, uploadMultipleFiles };
+module.exports = { uploadSingleFile, uploadMultipleFiles };

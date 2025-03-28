@@ -1,11 +1,11 @@
-import joiObjectId from "joi-objectid";
-import Joi from "joi";
+const joiObjectId = require("joi-objectid");
+const Joi = require("joi");
 
-import { STATUS } from "../constants/statusConstants.js";
+const { STATUS } = require("../constants/statusConstants.js");
 
 Joi.objectId = joiObjectId(Joi);
 
-export const createTaskValidator = Joi.object({
+exports.createTaskValidator = Joi.object({
   title: Joi.string().messages({
     "string.empty": "Tiêu đề không được để trống",
     "any.required": "Tiêu đề là bắt buộc",
@@ -47,7 +47,7 @@ export const createTaskValidator = Joi.object({
   }),
 });
 
-export const updateTaskValidator = Joi.object({
+exports.updateTaskValidator = Joi.object({
   title: Joi.string().messages({
     "string.empty": "Tiêu đề không được để trống",
     "any.required": "Tiêu đề là bắt buộc",

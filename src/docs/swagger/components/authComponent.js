@@ -35,4 +35,4 @@ const authSchema = {
     }
 }
 
-export { authSchema };
+module.exports = {authSchema};

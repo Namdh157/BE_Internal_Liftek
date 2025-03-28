@@ -1,8 +1,8 @@
-import sendMail from "../../services/emailService.js";
-import dotenv from "dotenv";
+const sendMail = require("../../services/emailService.js");
+const dotenv = require("dotenv");
 
 dotenv.config();
-export default async function emailTask(job) {
+module.exports = async function emailTask(job) {
     console.log(`Dang gui email den ${job.data.email}...`);    
     try {
         await sendMail({
