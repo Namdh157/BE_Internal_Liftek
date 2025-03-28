@@ -294,7 +294,7 @@ const taskSwagger = {
       parameters: [
         {
           in: "path",
-          name: "id",
+          name: "taskId",
           required: true,
           description: "ID nhiệm vụ",
           schema: {
