@@ -11,7 +11,7 @@ module.exports = {
     MONGO_USERNAME: process.env.MONGO_USERNAME,
     MONGO_PASSWORD: process.env.MONGO_PASSWORD,
     REPLICA_SET: process.env.REPLICA_SET,
-    NODE_ENV: process.env.NODE_ENV || "development",
+    NODE_ENV: "development1"  || process.env.NODE_ENV ,
 
     //JWT
     JWT_SECRET: process.env.JWT_SECRET,

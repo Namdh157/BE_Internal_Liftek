@@ -130,6 +130,7 @@ exports.addUserToTaskController = async (req, res, next) => {
 
     // Kiểm tra xem assigneeId có trong project không
     const project = await projectService.getProjectById(projectId);
+    console.log(project.members)
     if (!project) {
       return next({
         statusCode: 404,
@@ -137,18 +138,18 @@ exports.addUserToTaskController = async (req, res, next) => {
       });
     }
 
-    if (!project.members.includes(assigneeId)) {
+    if (!project.members.map(id => id.toString()).includes(assigneeId.toString())) {
       return next({
         statusCode: 400,
-        message: "Người dùng không có trong project",
+        message: "Người nhận việc không có trong dự án",
       });
     }
 
     // Kiểm tra trùng assignee trong Task
-    if (task.assignees.includes(assigneeId)) {
+    if (task.assigneeId.map(id => id.toString()).includes(assigneeId.toString())) {
       return next({
         statusCode: 400,
-        message: "Người dùng đã có trong project",
+        message: "Người nhận đã ở trong vấn đề",
       });
     }
 
