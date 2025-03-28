@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const Promise = require("bluebird");
 const env = require("./env");
 
@@ -10,8 +11,7 @@ const connectDB = async () => {
       await mongoose.connect(env.URI_DB);
       console.log("✅ Kết nối MongoDB Atlas cá nhân thành công!");
     } else {
-      await mongoose.connect(
-        env.MONGO_HOST, {
+      await mongoose.connect(env.MONGO_HOST, {
         user: env.MONGO_USERNAME,
         pass: env.MONGO_PASSWORD,
         serverSelectionTimeoutMS: 5000,

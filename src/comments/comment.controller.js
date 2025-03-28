@@ -1,5 +1,3 @@
-
-
 const commentService = require("./comment.service.js");
 const taskService = require("../tasks/task.service.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
@@ -45,7 +43,7 @@ exports.load = async (req, res, next, id) => {
   try {
     const task = await taskService.getTaskById(id);
     if (!task) {
-      next(new Error("Task not found"));
+      return next(new Error("Không tìm thấy task"));
     }
     req.task = task;
     next();
