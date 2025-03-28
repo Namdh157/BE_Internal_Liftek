@@ -7,60 +7,58 @@ const emailTemplate = require("../services/templateService.js");
 const emailQueue = require("../queues/index.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const crypto = require("crypto");
-const { sendMail } = require("../config/nodeMailer.js");
 
 //đăng ký
 exports.register = async (req, res, next) => {
-  try {
-    const { email, password, phone, userName } = req.body;
-    const { error } = authValidation.signUpValidator.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error) {
-      const errors = error.details.map((err) => err.message);
-      return next(new Error(errors));
+    try {
+        const { email, password, phone, userName } = req.body;
+        const { error } = authValidation.signUpValidator.validate(req.body, { abortEarly: false });
+        if (error) {
+            const errors = error.details.map((err) => err.message);
+            return next(new Error(errors));
+        }
+
+        const userExists = await User.findOne({ email: email });
+        if (userExists) {
+            return next(new Error("Email đã tồn tại"));
+        }
+
+        const user = await User.create({
+            email,
+            password,
+            phone,
+            userName,
+        });
+
+        const verifyToken = jwt.sign({ id: user._id }, env.JWT_SECRET, {
+            expiresIn: "30m",
+        });
+
+        //gui email
+        const verificationLink = env.CLIENT_DONE
+        ? `${env.CLIENT_URL}/verify-email/${verifyToken}`
+        :`${env.BASE_URL}/api/v1/auth/verify-email/${verifyToken}`;
+        const emailContent = emailTemplate.getVerificationEmailTemplate(verificationLink);
+
+        // use service send email
+        // sendMail({
+        //   to: user.email,
+        //   subject: "Xác thực email",
+        //   text: "Xác thực email",
+        //   html: emailContent,
+        // })
+
+        // use worker send email
+        await emailQueue.emailQueue.add("sendEmail", {
+            email: user.email,
+            subject: "Xác thực email",
+            text: "Xác thực emailabc",
+            html: emailContent,
+        });
+        new SuccessResponse(user).send(res);
+    } catch (error) {
+        return next(error);
     }
-
-    const userExists = await User.findOne({ email: email });
-    if (userExists) {
-      return next(new Error("Email đã tồn tại"));
-    }
-
-    const user = await User.create({
-      email,
-      password,
-      phone,
-      userName,
-    });
-
-    const verifyToken = jwt.sign({ id: user._id }, env.JWT_SECRET, {
-      expiresIn: "30m",
-    });
-
-    //gui email
-    const verificationLink = `${env.BASE_URL}/api/v1/auth/verify-email/${verifyToken}`;
-    const emailContent =
-      emailTemplate.getVerificationEmailTemplate(verificationLink);
-
-    // use service send email
-    sendMail({
-      to: user.email,
-      subject: "Xác thực email",
-      text: "Xác thực email",
-      html: emailContent,
-    });
-
-    // use worker send email
-    // await emailQueue.emailQueue.add("sendEmail", {
-    //     email: user.email,
-    //     subject: "Xác thực email",
-    //     text: "Xác thực emailabc",
-    //     html: emailContent,
-    // });
-    new SuccessResponse(user).send(res);
-  } catch (error) {
-    return next(error);
-  }
 };
 //xác thực email
 exports.verifyEmail = async (req, res, next) => {
