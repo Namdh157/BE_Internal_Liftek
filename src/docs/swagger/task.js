@@ -720,6 +720,7 @@ const taskSwagger = {
             schema: {
               type: "object",
               properties: {
+
                 assigneeId: {
                   type: "array",
                   items: {

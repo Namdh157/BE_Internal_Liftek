@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-Promise = require('bluebird');
+const Promise = require("bluebird"); 
 const env = require("./env");
 
 
