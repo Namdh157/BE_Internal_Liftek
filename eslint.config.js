@@ -1,9 +1,9 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
+const globals = require("globals");
+const pluginJs = require("@eslint/js");
 
 /** @type {import('eslint').Linter.Config[]} */
-export default [
-  { files: ["**/*.js"], languageOptions: { sourceType: "module" } }, // ✅ Sửa CommonJS thành ES Modules
+module.exports = [
+  { files: ["**/*.js"], languageOptions: { sourceType: "module" } }, // optional, nếu bạn vẫn muốn
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
   {
