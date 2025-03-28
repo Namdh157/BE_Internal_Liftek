@@ -29,8 +29,8 @@ exports.updateTaskStatus = async (req, res, next) => {
     const userId = req.user._id;
 
     if (
-      !Object.values(STATUS).includes(oldStatus) ||
-      !Object.values(STATUS).includes(newStatus)
+      !Object.values(STATUS).includes(oldStatus)
+      || !Object.values(STATUS).includes(newStatus)
     ) {
       return next(new Error("Trạng thái không hợp lệ !"));
     }

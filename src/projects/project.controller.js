@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
-const  projectService = require("./project.service.js");
+const projectService = require("./project.service.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
-const jwt = require("jsonwebtoken");
 exports.addProject = async (req, res, next) => {
   try {
     const project = await projectService.createProject(req.body);
@@ -49,7 +48,7 @@ exports.updateProject = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.project._id))
       return next(new Error("ID không hợp lệ"));
-
+      console.log( ">>>>>>>", req.body)
     const project = await projectService.updateProject(
       req.project._id,
       req.body
@@ -121,22 +120,6 @@ exports.load = async (req, res, next, id) => {
     return next(error);
   }
 };
-// exports.searchProject = async (req, res, next) => {
-//   try {
-//     const { q } = req.query.search; // Lấy từ khóa từ query (thay vì params)
-//     const idUser = req.user._id;
-
-//     console.log(idUser);
-
-//     if (!q || q.trim() === "") return next(new Error("Từ khóa không hợp lệ"));
-
-//     const projects = await projectService.FindProjectByTitle(idUser, q.trim());
-
-//     return res.json({ success: true, data: projects });
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
 exports.getNameProject = async (req, res, next) => {
   try {
     const userId = req.user._id;
