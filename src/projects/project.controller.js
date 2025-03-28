@@ -2,8 +2,18 @@ const mongoose = require("mongoose");
 const projectService = require("./project.service.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
+const { PERMISSIONS } = require("../constants/index.js");
 exports.addProject = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.CREATE_PROJECT_PROJECT.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
     const project = await projectService.createProject(req.body);
     return new SuccessResponse(project).send(res);
   } catch (error) {
@@ -46,9 +56,17 @@ exports.getProjectById = async (req, res, next) => {
 
 exports.updateProject = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.UPDATE_PROJECT.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
     if (!mongoose.Types.ObjectId.isValid(req.project._id))
       return next(new Error("ID không hợp lệ"));
-      console.log( ">>>>>>>", req.body)
     const project = await projectService.updateProject(
       req.project._id,
       req.body
@@ -63,6 +81,15 @@ exports.updateProject = async (req, res, next) => {
 
 exports.deleteProject = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.DELETE_PROJECT.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
     if (!mongoose.Types.ObjectId.isValid(req.params.idProject)) {
       return next(new Error("ID không hợp lệ"));
     }
