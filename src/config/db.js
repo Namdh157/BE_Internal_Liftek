@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-Promise = require('bluebird');
+const Promise = require("bluebird"); 
 const env = require("./env");
 
 
@@ -8,7 +8,7 @@ const connectDB = async () => {
   console.log(env.MONGO_HOST);
 
   try {
-    if (env.NODE_ENV === "development1") {
+    if (env.NODE_ENV === "development") {
       // mongoose.set("debug", true);
       await mongoose.connect(env.URI_DB);
     console.log("✅ Kết nối MongoDB Atlas cá nhân thành công!");

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const { uploadSingleFile } = require("../services/cloudinaryService.js");
-const  taskService = require("./task.service.js");
-const  taskStatusChangeService = require("./statusChange.service.js")
-const  taskValidator = require("./task.validation.js");
+const taskService = require("./task.service.js");
+const taskStatusChangeService = require("./statusChange.service.js")
+const taskValidator = require("./task.validation.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
 const { CHANGE_SOURCE, PERMISSIONS } = require("../constants/index.js");
@@ -26,7 +26,11 @@ exports.updateTaskStatus = async (req, res, next) => {
     const { taskId } = req.params;
     const userId = req.user._id;
 
-    if (!Object.values(STATUS).includes(oldStatus) || !Object.values(STATUS).includes(newStatus)) {
+
+    if (
+      !Object.values(STATUS).includes(oldStatus)
+      || !Object.values(STATUS).includes(newStatus)
+    ) {
       return next(new Error("Trạng thái không hợp lệ !"));
     }
 
