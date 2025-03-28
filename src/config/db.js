@@ -5,7 +5,7 @@ const env = require("./env");
 mongoose.Promise = Promise;
 const connectDB = async () => {
   try {
-    if (env.NODE_ENV === "development1") {
+    if (env.NODE_ENV === "development") {
       // mongoose.set("debug", true);
       await mongoose.connect(env.URI_DB);
       console.log("✅ Kết nối MongoDB Atlas cá nhân thành công!");

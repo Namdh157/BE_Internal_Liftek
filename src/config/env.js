@@ -4,6 +4,7 @@ module.exports = {
     APP_NAME: process.env.APP_NAME,
     BASE_URL: process.env.BASE_URL,
     CLIENT_URL: process.env.CLIENT_URL,
+    CLIENT_DONE: process.env.CLIENT_DONE,
     PORT: process.env.PORT,
     DOMAIN_SWAGGER: process.env.DOMAIN_SWAGGER, //Swagger
     URI_DB: process.env.URI_DB, 
@@ -11,7 +12,7 @@ module.exports = {
     MONGO_USERNAME: process.env.MONGO_USERNAME,
     MONGO_PASSWORD: process.env.MONGO_PASSWORD,
     REPLICA_SET: process.env.REPLICA_SET,
-    NODE_ENV: "development1"  || process.env.NODE_ENV ,
+    NODE_ENV: process.env.NODE_ENV ,
 
     //JWT
     JWT_SECRET: process.env.JWT_SECRET,
