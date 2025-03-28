@@ -26,24 +26,31 @@ exports.updateTaskStatusService = async (taskId, newStatus) => {
 /// thêm user vào task
 exports.addUserToTask = async (taskId, userId) => {
   const listUserId = await User.find({ _id: { $in: userId } }).distinct("_id");
-  console.log(listUserId)
+  console.log(listUserId);
   if (listUserId.length === 0) {
-    throw new Error("Danh sách người dùng thêm vào không tồn tại trong bảng người dùng");
-  }
-  else if (listUserId.length === 1) {
+    throw new Error(
+      "Danh sách người dùng thêm vào không tồn tại trong bảng người dùng"
+    );
+  } else if (listUserId.length === 1) {
     const task = await Task.findById(taskId);
     if (!task) {
       throw new Error("Task không tìm thấy");
     }
     // Lấy danh sách userId đã tồn tại trong assigneeId
-    const existingUsers = task.assigneeId.map(id => id.toString());
+    const existingUsers = task.assigneeId.map((id) => id.toString());
 
     // Kiểm tra xem có userId nào bị trùng không
-    const duplicateUsers = listUserId.filter(id => existingUsers.includes(id));
+    const duplicateUsers = listUserId.filter((id) =>
+      existingUsers.includes(id)
+    );
     if (duplicateUsers.length > 0) {
-      throw new Error(`UserId bị trùng: ${duplicateUsers.join(", ")}. Vui lòng chọn user khác.`);
+      throw new Error(
+        `UserId bị trùng: ${duplicateUsers.join(
+          ", "
+        )}. Vui lòng chọn user khác.`
+      );
     }
-    const newUsers = listUserId.map(id => new mongoose.Types.ObjectId(id));
+    const newUsers = listUserId.map((id) => new mongoose.Types.ObjectId(id));
 
     const result = await Task.findByIdAndUpdate(
       taskId,
@@ -51,14 +58,17 @@ exports.addUserToTask = async (taskId, userId) => {
       { new: true }
     );
     return result;
-  }
-
-  else if ((listUserId.length > 1)) {
+  } else if (listUserId.length > 1) {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
-      { $set: { assigneeId: listUserId.map(id => new mongoose.Types.ObjectId(id)) } }, // Dùng $addToSet để tránh trùng lặp
-      { new: true }, { assigneeId: 1 }
-    );// Populate để lấy chi tiết user nếu cần
+      {
+        $set: {
+          assigneeId: listUserId.map((id) => new mongoose.Types.ObjectId(id)),
+        },
+      }, // Dùng $addToSet để tránh trùng lặp
+      { new: true },
+      { assigneeId: 1 }
+    ); // Populate để lấy chi tiết user nếu cần
 
     if (!updatedTask) {
       throw new Error("Task không tìm thấy");
@@ -66,11 +76,9 @@ exports.addUserToTask = async (taskId, userId) => {
 
     return updatedTask;
   }
-
-}
+};
 exports.filterTaskService = async (skip, limit, filter) => {
-  return Task
-    .find(filter)
+  return Task.find(filter)
     .skip(skip)
     .limit(limit)
     .populate("assigneeId", "userName email avatar")
@@ -122,7 +130,7 @@ exports.getAlTaskByProject = async (projectId, skip, limit) => {
 
 exports.countTaskByProject = async (projectId) => {
   return await Task.countDocuments({ projectId });
-}
+};
 exports.FindTaskById = async (id) => {
   return await Task.findById(id)
     .populate({
@@ -139,7 +147,6 @@ exports.getTaskById = async (id) => {
   return await Task.findById(id);
 }
 
-
 exports.FindTaskByTitle = async (skip, limit, data) => {
 
   return await Task
@@ -149,8 +156,11 @@ exports.FindTaskByTitle = async (skip, limit, data) => {
       ],
     })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate("assigneeId", "userName ")
+    .populate("assignerId", "userName");
 };
+
 // check assigneeID có trong bảng user không
 exports.checkAssigneeId = async (assigneeId) => {
   return await User.find({ _id: { $in: assigneeId } });

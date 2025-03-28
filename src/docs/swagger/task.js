@@ -104,33 +104,33 @@ const taskSwagger = {
         },
       },
     },
-     get: {
+    get: {
       summary: "Lấy danh sách tất cả công việc",
-       description: "Trả về danh sách các công việc trong hệ thống",
-      
+      description: "Trả về danh sách các công việc trong hệ thống",
+
       tags: ["Task"],
-       "parameters": [
-      {
-        "in": "query",
-        "name": "page",
-        "required" : false,
-        "description": "Phân trang hiện tại",
-        "schema": {
-          "type": "number",
-          "example": 1
-        }
-      },
-      {
-        "in": "query",
-        "name": "pageSize",
-        "required": false,
-        "description": "Số lượng hiển thị",
-        "schema": {
-          "type": "number",
-          "example": 10
-        }
-      },  
-    ],
+      parameters: [
+        {
+          in: "query",
+          name: "page",
+          required: false,
+          description: "Phân trang hiện tại",
+          schema: {
+            type: "number",
+            example: 1,
+          },
+        },
+        {
+          in: "query",
+          name: "pageSize",
+          required: false,
+          description: "Số lượng hiển thị",
+          schema: {
+            type: "number",
+            example: 10,
+          },
+        },
+      ],
       responses: {
         200: {
           description: "Lấy danh sách vấn đề thành công",
@@ -160,7 +160,7 @@ const taskSwagger = {
         },
       },
     },
-      delete: {
+    delete: {
       summary: "Xoá nhiều vấn đề theo ID",
       description: "API xoá dự án",
       tags: ["Task"],
@@ -418,57 +418,57 @@ const taskSwagger = {
       },
     },
     delete: {
-            summary: "Xoá vấn đề theo ID",
-            description: "API xoá dự án",
-            tags: ["Task"],
-            parameters: [
-                {
-                    in: "path",
-                    name: "id",
-                    required: true,
-                    description: "ID task",
-                    schema: {
-                        type: "string"
-                    }
-                }
-            ],
-            responses: {
-                200: {
-                    description: "Xoá vấn đề thành công",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    message: {
-                                        type: "string",
-                                        example: "Xoá vấn đề thành công"
-                                    }
-                                }
-                            }
-                        }
-                    }
+      summary: "Xoá vấn đề theo ID",
+      description: "API xoá dự án",
+      tags: ["Task"],
+      parameters: [
+        {
+          in: "path",
+          name: "id",
+          required: true,
+          description: "ID task",
+          schema: {
+            type: "string",
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Xoá vấn đề thành công",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Xoá vấn đề thành công",
+                  },
                 },
-                404: {
-                    description: "Không tìm thấy vấn đề",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    message: {
-                                        type: "string",
-                                        example: "Không tìm thấy vấn đề"
-                                    }
-                                }
-                            }
-                        }
-                    }
+              },
+            },
+          },
+        },
+        404: {
+          description: "Không tìm thấy vấn đề",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Không tìm thấy vấn đề",
+                  },
                 },
-                500: {
-                    description: "Lỗi server"
-                }
-            }
+              },
+            },
+          },
+        },
+        500: {
+          description: "Lỗi server",
+        },
+      },
     },
   },
   "/tasks/{taskId}/status": {
@@ -488,7 +488,7 @@ const taskSwagger = {
           },
         },
       ],
-        requestBody: {
+      requestBody: {
         required: true,
         content: {
           "application/json": {
@@ -500,10 +500,10 @@ const taskSwagger = {
                   example: 2,
                 },
                 newStatus: {
-                  type:"number",
-                  example: STATUS.FINISH
+                  type: "number",
+                  example: STATUS.FINISH,
                 },
-              }
+              },
             },
           },
         },
@@ -633,6 +633,16 @@ const taskSwagger = {
             example: "Tạo API cho hệ thống",
           },
         },
+        {
+          in: "query",
+          name: "projectId",
+          required: true,
+          description: "Tìm kiếm công việc theo người nhận thuộc 1 project",
+          schema: {
+            type: "string",
+            example: "67d8dd65edc970e80f2ed0a4",
+          },
+        },
       ],
       responses: {
         200: {
@@ -667,7 +677,8 @@ const taskSwagger = {
   "/tasks/filter/{projectId}": {
     post: {
       summary: "Lọc công việc theo người giao, người nhận, thời gian",
-      description: "Trả về danh sách công việc theo người giao, người nhận, thời gian",
+      description:
+        "Trả về danh sách công việc theo người giao, người nhận, thời gian",
       tags: ["Task"],
       parameters: [
         {
@@ -715,7 +726,7 @@ const taskSwagger = {
                   type: "string",
                   example: "2025-04-30",
                 },
-              }
+              },
             },
           },
         },
@@ -750,8 +761,116 @@ const taskSwagger = {
       },
     },
   },
- 
+  "/tasks/{taskId}/add-user": {
+    post: {
+      summary: "Thêm người dùng vào vấn đề",
+      description: "Thêm người dùng vào vấn đề",
+      tags: ["Task"],
+      security: [
+        {
+          BearerAuth: [],
+        },
+      ],
+      parameters: [
+        {
+          in: "path",
+          name: "taskId",
+          required: true,
+          description: "ID task",
+          schema: {
+            type: "string",
+            example: "67d8e401835b109d2e16bd8d",
+          },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                userId: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                    example: "67dd0e3b4e734fdc9ab4ba24",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Thêm người dùng vào vấn đề",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Thêm người dùng vào vấn đề thành công",
+                  },
+                },
+              },
+            },
+          },
+        },
+        403: {
+          description: "Không đủ quyền",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Người dùng không đủ thẩm quyền",
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: "Task not found",
 
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Task không tìm thấy",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Lỗi phía server",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example: "Internal server error",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 module.exports = taskSwagger;

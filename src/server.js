@@ -1,4 +1,4 @@
-const express = require("express")
+const express = require("express");
 const env = require("./config/env.js");
 const cors = require("cors");
 const router = require("./routes/index.js");
@@ -31,8 +31,7 @@ swaggerDocs(app);
 app.use(ErrorMiddleware.notFound); // xử lý lỗi 404
 app.use(ErrorMiddleware.errorHandle); // xử lý lỗi chung
 
-// console.log(listEndpoints(app)); 
-
+// console.log(listEndpoints(app));
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server đang chạy tại ${process.env.BASE_URL}`);

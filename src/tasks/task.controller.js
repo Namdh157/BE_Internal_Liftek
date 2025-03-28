@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
 const { uploadSingleFile } = require("../services/cloudinaryService.js");
 const taskService = require("./task.service.js");
-const taskStatusChangeService = require("./statusChange.service.js")
+const taskStatusChangeService = require("./statusChange.service.js");
 const taskValidator = require("./task.validation.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
 const { CHANGE_SOURCE, PERMISSIONS } = require("../constants/index.js");
 const { STATUS } = require("../constants/statusConstants.js");
+const ErrorMiddleware = require("../middlewares/error.middleware.js");
+const projectService = require("../projects/project.service.js");
 
 /// thay đổi trạng thái
 exports.updateTaskStatus = async (req, res, next) => {
@@ -25,7 +27,6 @@ exports.updateTaskStatus = async (req, res, next) => {
 
     const { taskId } = req.params;
     const userId = req.user._id;
-
 
     if (
       !Object.values(STATUS).includes(oldStatus)
@@ -51,18 +52,113 @@ exports.updateTaskStatus = async (req, res, next) => {
 };
 
 // thêm user vào task
+// exports.addUserToTaskController = async (req, res, next) => {
+// try {
+//   const { taskId } = req.params;
+//   const { assigneeId } = req.body;
+//   const roleUser = req.user.role;
+//   const checkPermission = PERMISSIONS.ASSIGN_TASK.includes(roleUser);
+//   const projectId = task.projectId;
+
+//   if (!checkPermission) {
+//     return next({
+//       statusCode: 403,
+//       message: "You don't have permission to add user to task",
+//     });
+//   }
+//   if (!assigneeId) {
+//     return next({
+//       statusCode: 400,
+//       message: "AssigneeId is required",
+//     });
+//   }
+
+//   const task = await taskService.getTaskById(taskId);
+//   if (!task) {
+//     return next({
+//       statusCode: 404,
+//       message: "Task not found",
+//     });
+//   }
+
+//   if (task.assigneeId.includes(assigneeId)) {
+//     return next({
+//       statusCode: 400,
+//       message: "Người dùng đã được thêm rồi!!",
+//     });
+//   }
+
+//   const updatedTask = await taskService.addUserToTask(taskId, assigneeId);
+//   return new SuccessResponse(updatedTask).send(res);
+// } catch (error) {
+//   return next(error);
+// }
+// };
 exports.addUserToTaskController = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const { userId } = req.body;
-    const updatedTask = await taskService.addUserToTask(taskId, userId);
+    const { assigneeId } = req.body;
+    const roleUser = req.user.role;
 
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.ASSIGN_TASK.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
+
+    // Kiểm tra assigneeId có tồn tại không
+    if (!assigneeId) {
+      return next({
+        statusCode: 400,
+        message: "AssigneeId không tồn tạitại",
+      });
+    }
+    const task = await taskService.getTaskById(taskId);
+
+    if (!task) {
+      return next({
+        statusCode: 404,
+        message: "Không tìm thấy task",
+      });
+    }
+
+    // Lấy projectId từ task
+    const projectId = task.projectId;
+
+    // Kiểm tra xem assigneeId có trong project không
+    const project = await projectService.getProjectById(projectId);
+    if (!project) {
+      return next({
+        statusCode: 404,
+        message: " Không tìm thấy Project",
+      });
+    }
+
+    if (!project.members.includes(assigneeId)) {
+      return next({
+        statusCode: 400,
+        message: "Người dùng không có trong project",
+      });
+    }
+
+    // Kiểm tra trùng assignee trong Task
+    if (task.assignees.includes(assigneeId)) {
+      return next({
+        statusCode: 400,
+        message: "Người dùng đã có trong project",
+      });
+    }
+
+    // Thêm user vào task
+    const updatedTask = await taskService.addUserToTask(taskId, assigneeId);
     return new SuccessResponse(updatedTask).send(res);
   } catch (error) {
     return next(error);
   }
-}
-
+};
 
 // lấy tất cả task theo project
 exports.getAlTaskByProject = async (req, res, next) => {
@@ -74,7 +170,9 @@ exports.getAlTaskByProject = async (req, res, next) => {
     const tasks = await taskService.getAlTaskByProject(projectId, skip, limit);
     const total = await taskService.countTaskByProject(projectId);
 
-    return new SuccessResponse(tasks, 200, "success", total, limit).sends(res);
+    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(
+      res
+    );
   } catch (error) {
     return next(error);
   }
@@ -96,35 +194,54 @@ exports.filterTaskController = async (req, res, next) => {
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
-    const searchResult = await taskService.filterTaskService(skip, limit, filter);
+    const searchResult = await taskService.filterTaskService(
+      skip,
+      limit,
+      filter
+    );
     const total = searchResult.length;
     if (searchResult.length === 0) {
       return new SuccessResponse("Không tìm thấy task nào", 404).send(res);
     }
 
-    return new SuccessResponse(searchResult, 200, "success", total, page, limit, filter).sends(res);
+    return new SuccessResponse(
+      searchResult,
+      200,
+      "success",
+      total,
+      page,
+      limit,
+      filter
+    ).sends(res);
   } catch (error) {
     return next(error);
   }
 };
 
-// tìm kiếm task
-
+// tìm kiếm task// tìm kiếm task
 exports.searchTaskByTitle = async (req, res, next) => {
   try {
-    const title = req.query.search;
-    if (!title || title.lenght === 0) {
+    const projectId = req.query.projectId;
+    const title = req.query.search.trim();
+    const assigneeIds = req.user._id;
+    if (!title || title.length === 0) {
       return next(new Error("Tiêu đề không được để trống"));
     }
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
-    const tasks = await taskService.FindTaskByTitle(skip, limit, title);
+    const tasks = await taskService.FindTaskByTitle(
+      skip,
+      limit,
+      title,
+      assigneeIds,
+      projectId
+    );
     const total = tasks.length;
-    if (tasks.length === 0) {
-      return next(new Error("Không tìm thấy task nào"));
-    }
-    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(res);
+
+    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(
+      res
+    );
   } catch (error) {
     return next(error);
   }
@@ -200,7 +317,9 @@ exports.getAllTasks = async (req, res, next) => {
     const tasks = await taskService.getAllTasks(skip, limit);
     const total = await taskService.countTasks();
 
-    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(res);
+    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(
+      res
+    );
   } catch (error) {
     return next(error);
   }
@@ -251,11 +370,13 @@ exports.updateTask = async (req, res, next) => {
     if (!assignerIdFromDB) {
       return next(new Error("Người giao việc không hợp lệ"));
     }
-    const { error } = taskValidator.updateTaskValidator.validate(dataBody, { abortEarly: false });
+    const { error } = taskValidator.updateTaskValidator.validate(dataBody, {
+      abortEarly: false,
+    });
 
     if (error) {
       const errors = error.details.map((err) => err.message);
-      return next(new Error(errors))
+      return next(new Error(errors));
     }
 
     if (req.file) {
@@ -310,7 +431,7 @@ exports.deleteManyTask = async (req, res, next) => {
 exports.load = async (req, res, next, id) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return next(new Error("Status không phù hợp"));;
+      return next(new Error("Status không phù hợp"));
     }
     const task = await taskService.FindTaskById(id);
     if (!task) return next(new Error("Task không tìm thấy"));
