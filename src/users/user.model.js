@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(ROLES),
       default: ROLES.USER,
     },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
     resetPasswordToken: String, 
     resetPasswordExpire: Date,
   },

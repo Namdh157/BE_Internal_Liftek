@@ -24,9 +24,15 @@ const ProjectSchema = new mongoose.Schema(
       enum: Object.values(PRIORITY),
       default: PRIORITY.LOW,
     },
+   
   },
   { timestamps: true }
 );
+// 📌 Middleware: Chuyển đổi `name` thành `slugName` trước khi lưu
+ProjectSchema.pre("save", function (next) {
+  this.slugName = removeAccents.remove(this.name.toLowerCase()); // Loại bỏ dấu
+  next();
+});
 
 // 📌 Middleware: Chuyển đổi `name` thành `slugName` trước khi lưu
 ProjectSchema.pre("save", function (next) {

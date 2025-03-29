@@ -146,20 +146,7 @@ exports.getTaskById = async (id) => {
   return await Task.findById(id);
 };
 
-exports.convertToSlug = (str) => {
-  return str
-    .normalize("NFD") // Chuẩn hóa Unicode
-    .replace(/[\u0300-\u036f]/g, "") // Xóa dấu tiếng Việt
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D") // Chuyển đ -> d, Đ -> D
-    .replace(/[^a-zA-Z0-9\s]/g, "") // Xóa ký tự đặc biệt (chỉ giữ chữ & số)
-    .trim() // Xóa khoảng trắng đầu & cuối
-    .replace(/\s+/g, " "); // Chuyển nhiều khoảng trắng thành 1 khoảng trắng
-};
-
 exports.FindTaskByTitle = async (skip, limit, data, assigneeIds, projectId) => {
-  //const slugTitle = this.convertToSlug(data); // Chuyển input thành không dấu
-
   return await Task.find({
     $or: [
       { title: { $regex: new RegExp(`.*${data}*`, "i") } }, // Tìm kiếm một phần của chuỗi có dấu
@@ -168,8 +155,11 @@ exports.FindTaskByTitle = async (skip, limit, data, assigneeIds, projectId) => {
     projectId: projectId,
   })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate("assigneeId", "userName ")
+    .populate("assignerId", "userName");
 };
+
 exports.CountTitleTasks = async (skip, limit, data, assigneeIds, projectId) => {
   return await Task.countDocuments({
     $or: [{ title: { $regex: new RegExp(`.*${data}*`, "i") } }],
@@ -177,6 +167,7 @@ exports.CountTitleTasks = async (skip, limit, data, assigneeIds, projectId) => {
     projectId: projectId,
   });
 };
+
 // check assigneeID có trong bảng user không
 exports.checkAssigneeId = async (assigneeId) => {
   return await User.find({ _id: { $in: assigneeId } });

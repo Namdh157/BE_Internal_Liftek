@@ -1,5 +1,5 @@
 const express = require("express");
-const  taskController = require("./task.controller.js");
+const taskController = require("./task.controller.js");
 const upload = require("../config/multer.js");
 
 const routerTask = express.Router();
@@ -11,13 +11,14 @@ routerTask
   .post(upload.single("image"), taskController.addTask)
   .delete(taskController.deleteManyTask);
 
+
+routerTask.param("taskId", taskController.load);
 routerTask
   .route("/:taskId")
   .get(taskController.getTaskById)
   .put(upload.single("image"), taskController.updateTask)
-  .post( taskController.addUserToTaskController)
+  .post(taskController.addUserToTaskController)
   .delete(taskController.deleteTask);
-routerTask.param("taskId", taskController.load);
 
 routerTask.put("/:taskId/status", taskController.updateTaskStatus);
 routerTask.get("/project/:projectId", taskController.getAlTaskByProject);

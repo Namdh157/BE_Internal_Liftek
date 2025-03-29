@@ -2,9 +2,18 @@ const mongoose = require("mongoose");
 const projectService = require("./project.service.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
-const jwt = require("jsonwebtoken");
+const { PERMISSIONS } = require("../constants/index.js");
 exports.addProject = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.CREATE_PROJECT_PROJECT.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
     const project = await projectService.createProject(req.body);
     return new SuccessResponse(project).send(res);
   } catch (error) {
@@ -47,9 +56,17 @@ exports.getProjectById = async (req, res, next) => {
 
 exports.updateProject = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.UPDATE_PROJECT.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
     if (!mongoose.Types.ObjectId.isValid(req.project._id))
       return next(new Error("ID không hợp lệ"));
-
     const project = await projectService.updateProject(
       req.project._id,
       req.body
@@ -64,6 +81,15 @@ exports.updateProject = async (req, res, next) => {
 
 exports.deleteProject = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    // Kiểm tra quyền
+    const checkPermission = PERMISSIONS.DELETE_PROJECT.includes(roleUser);
+    if (!checkPermission) {
+      return next({
+        statusCode: 403,
+        message: "Bạn không có quyền thêm người dùng vào task",
+      });
+    }
     if (!mongoose.Types.ObjectId.isValid(req.params.idProject)) {
       return next(new Error("ID không hợp lệ"));
     }
@@ -121,22 +147,6 @@ exports.load = async (req, res, next, id) => {
     return next(error);
   }
 };
-// exports.searchProject = async (req, res, next) => {
-//   try {
-//     const { q } = req.query.search; // Lấy từ khóa từ query (thay vì params)
-//     const idUser = req.user._id;
-
-//     console.log(idUser);
-
-//     if (!q || q.trim() === "") return next(new Error("Từ khóa không hợp lệ"));
-
-//     const projects = await projectService.FindProjectByTitle(idUser, q.trim());
-
-//     return res.json({ success: true, data: projects });
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
 exports.getNameProject = async (req, res, next) => {
   try {
     const userId = req.user._id;

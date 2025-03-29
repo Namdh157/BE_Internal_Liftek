@@ -80,7 +80,19 @@ exports.updateProject = async (id, data) => {
 
   let memberIds = project.members.map((m) => m.toString());
 
-  // Nếu muốn **thêm** thành viên mới
+  // Chuyển đổi object thành mảng nếu cần
+  if (
+    data.addMembers && typeof data.addMembers === "object" && !Array.isArray(data.addMembers)
+  ) {
+    data.addMembers = [data.addMembers];
+  }
+  if (
+    data.removeMembers && typeof data.removeMembers === "object" && !Array.isArray(data.removeMembers)
+  ) {
+    data.removeMembers = [data.removeMembers];
+  }
+
+  // ✅ Nếu muốn **thêm** thành viên mới
   if (Array.isArray(data.addMembers) && data.addMembers.length > 0) {
     for (let member of data.addMembers) {
       if (!member._id) continue;
@@ -99,8 +111,11 @@ exports.updateProject = async (id, data) => {
   if (Array.isArray(data.removeMembers) && data.removeMembers.length > 0) {
     const removeIds = data.removeMembers.map((member) => member._id);
     memberIds = memberIds.filter((id) => !removeIds.includes(id));
+    console.log("removeIds", removeIds);
   }
-  updateData.members = memberIds; // Cập nhật danh sách members
+
+  // Cập nhật danh sách thành viên
+  updateData.members = memberIds;
 
   // Cập nhật các trường khác (nếu có)
   ["name", "code", "description", "status", "priority"].forEach((field) => {
