@@ -45,10 +45,11 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",
     "redis": "^4.7.0",
+    "remove-accents": "^0.5.0",
+    "socket.io": "^4.8.1",
     "streamifier": "^0.1.1",
     "swagger": "^0.7.5",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "remove-accents": "^0.5.0"
+    "swagger-ui-express": "^5.0.1"
   }
 }

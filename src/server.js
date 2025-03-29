@@ -1,4 +1,5 @@
 const express = require("express");
+const http = require("http"); // Thêm module http
 const env = require("./config/env.js");
 const cors = require("cors");
 const router = require("./routes/index.js");
@@ -7,9 +8,13 @@ const cookieParser = require("cookie-parser");
 const swaggerDocs = require("./config/swaggerConfig.js");
 const { connectRedis } = require("./config/redisClient.js");
 const ErrorMiddleware = require("./middlewares/error.middleware.js");
-const listEndpoints = require("express-list-endpoints"); // eslint-disable-line
+const initSocket = require("./socket/socket.js"); // Import file socket
+
 const app = express();
 const PORT = env.PORT;
+
+// Tạo server HTTP từ app (quan trọng)
+const server = http.createServer(app);
 
 connectDB();
 connectRedis();
@@ -23,16 +28,17 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use("/api/v1", router);
 swaggerDocs(app);
 
-//middleware xử lý lỗi
-app.use(ErrorMiddleware.notFound); // xử lý lỗi 404
-app.use(ErrorMiddleware.errorHandle); // xử lý lỗi chung
+// Middleware xử lý lỗi
+app.use(ErrorMiddleware.notFound);
+app.use(ErrorMiddleware.errorHandle);
 
-// console.log(listEndpoints(app));
+// Khởi động Socket.io trên cùng server HTTP
+initSocket(server);
 
-app.listen(PORT, "0.0.0.0", () => {
+// Chạy server HTTP chung cho Express + Socket.io
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server đang chạy tại ${process.env.BASE_URL}`);
 });

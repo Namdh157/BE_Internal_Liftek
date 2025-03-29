@@ -9,7 +9,7 @@ const ProjectSchema = new mongoose.Schema(
     description: { type: String },
     status: {
       type: Number,
-      enum: Object.values(STATUS_PROJECT), 
+      enum: Object.values(STATUS_PROJECT),
       default: STATUS_PROJECT.PROGRESSING,
     },
 
@@ -24,6 +24,7 @@ const ProjectSchema = new mongoose.Schema(
       enum: Object.values(PRIORITY),
       default: PRIORITY.LOW,
     },
+   
   },
   { timestamps: true }
 );
@@ -33,4 +34,11 @@ ProjectSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = mongoose.model("Project", ProjectSchema);
+// 📌 Middleware: Chuyển đổi `name` thành `slugName` trước khi lưu
+ProjectSchema.pre("save", function (next) {
+  this.slugName = removeAccents.remove(this.name.toLowerCase()); // Loại bỏ dấu
+  next();
+});
+
+const Project = mongoose.model("Project", ProjectSchema);
+module.exports = Project;

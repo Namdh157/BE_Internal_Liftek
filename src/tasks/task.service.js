@@ -22,7 +22,6 @@ exports.updateTaskStatusService = async (taskId, newStatus) => {
 
   return updatedTask;
 };
-
 /// thêm user vào task
 exports.addUserToTask = async (taskId, userId) => {
   const listUserId = await User.find({ _id: { $in: userId } }).distinct("_id");
@@ -159,6 +158,14 @@ exports.FindTaskByTitle = async (skip, limit, data, assigneeIds, projectId) => {
     .limit(limit)
     .populate("assigneeId", "userName ")
     .populate("assignerId", "userName");
+};
+
+exports.CountTitleTasks = async (skip, limit, data, assigneeIds, projectId) => {
+  return await Task.countDocuments({
+    $or: [{ title: { $regex: new RegExp(`.*${data}*`, "i") } }],
+    assigneeId: { $in: assigneeIds },
+    projectId: projectId,
+  });
 };
 
 // check assigneeID có trong bảng user không

@@ -7,58 +7,60 @@ const emailTemplate = require("../services/templateService.js");
 const emailQueue = require("../queues/index.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const crypto = require("crypto");
-
+const sendMail = require("../services/emailService");
 //đăng ký
 exports.register = async (req, res, next) => {
-    try {
-        const { email, password, phone, userName } = req.body;
-        const { error } = authValidation.signUpValidator.validate(req.body, { abortEarly: false });
-        if (error) {
-            const errors = error.details.map((err) => err.message);
-            return next(new Error(errors));
-        }
-
-        const userExists = await User.findOne({ email: email });
-        if (userExists) {
-            return next(new Error("Email đã tồn tại"));
-        }
-
-        const user = await User.create({
-            email,
-            password,
-            phone,
-            userName,
-        });
-
-        const verifyToken = jwt.sign({ id: user._id }, env.JWT_SECRET, {
-            expiresIn: "30m",
-        });
-
-        //gui email
-        const verificationLink = env.CLIENT_DONE
-        ? `${env.CLIENT_URL}/verify-email/${verifyToken}`
-        :`${env.BASE_URL}/api/v1/auth/verify-email/${verifyToken}`;
-        const emailContent = emailTemplate.getVerificationEmailTemplate(verificationLink);
-
-        // use service send email
-        // sendMail({
-        //   to: user.email,
-        //   subject: "Xác thực email",
-        //   text: "Xác thực email",
-        //   html: emailContent,
-        // })
-
-        // use worker send email
-        await emailQueue.emailQueue.add("sendEmail", {
-            email: user.email,
-            subject: "Xác thực email",
-            text: "Xác thực emailabc",
-            html: emailContent,
-        });
-        new SuccessResponse(user).send(res);
-    } catch (error) {
-        return next(error);
+  try {
+    const { email, password, phone, userName } = req.body;
+    const { error } = authValidation.signUpValidator.validate(req.body, {
+      abortEarly: false,
+    });
+    if (error) {
+      const errors = error.details.map((err) => err.message);
+      return next(new Error(errors));
     }
+
+    const userExists = await User.findOne({ email: email });
+    if (userExists) {
+      return next(new Error("Email đã tồn tại"));
+    }
+
+    const user = await User.create({
+      email,
+      password,
+      phone,
+      userName,
+    });
+
+    const verifyToken = jwt.sign({ id: user._id }, env.JWT_SECRET, {
+      expiresIn: "30m",
+    });
+
+    //gui email
+    const verificationLink = env.CLIENT_DONE
+      ? `${env.CLIENT_URL}/verify-email/${verifyToken}`
+      : `${env.BASE_URL}/api/v1/auth/verify-email/${verifyToken}`;
+    const emailContent = emailTemplate.getVerificationEmailTemplate(verificationLink);
+
+    // use service send email
+    sendMail({
+      to: user.email,
+      subject: "Xác thực email",
+      text: "Xác thực email",
+      html: emailContent,
+    });
+
+    // use worker send email
+    // await emailQueue.emailQueue.add("sendEmail", {
+    //     email: user.email,
+    //     subject: "Xác thực email",
+    //     text: "Xác thực emailabc",
+    //     html: emailContent,
+    // });
+    new SuccessResponse(user).send(res);
+  } catch (error) {
+    return next(error);
+  }
 };
 //xác thực email
 exports.verifyEmail = async (req, res, next) => {
@@ -91,7 +93,7 @@ exports.login = async (req, res, next) => {
     }
 
     const { email, password } = req.body;
-
+console.log(req.body);
     // truy van user
     const user = await User.findOne({ email });
 
@@ -103,6 +105,10 @@ exports.login = async (req, res, next) => {
 
     if (!user.verified) return next(new Error("Email chưa được xác thực"));
 
+    // Cap nhat isOnline = true
+    user.isOnline = true;
+    await user.save(); // Lưu thay đổi
+console.log(">>>", user.isOnline)
     // tao token
     const accessToken = tokenUtils.generateAccessToken(user);
     const refreshToken = tokenUtils.generateRefreshToken(user);
@@ -127,13 +133,15 @@ exports.login = async (req, res, next) => {
 //làm mới token
 exports.getNewAccessToken = async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
-
+  const user = req.user._id;
   if (!refreshToken) return next(new Error("Token không hợp lệ"));
 
   try {
     const decode = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 
     if (!decode) return next(new Error("Token không hợp lệ"));
+    user.isOnline = true;
+    await user.save();
   } catch (error) {
     return next(error);
   }
@@ -144,7 +152,8 @@ exports.logout = async (req, res, next) => {
     const id = req.user._id;
     const user = await User.findById(id);
     if (!user) return next(new Error("User không tồn tại"));
-
+    user.isOnline = false;
+    await user.save();
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: false, // local

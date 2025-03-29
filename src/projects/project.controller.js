@@ -26,9 +26,9 @@ exports.getAllProjects = async (req, res, next) => {
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
-    const idUser = req.user._id;
-    const projects = await projectService.getAllProjects(idUser, skip, limit);
-    const total = await projectService.countProjects(idUser);
+    const userId = req.user._id;
+    const projects = await projectService.getAllProjects(userId, skip, limit);
+    const total = await projectService.countProjects(userId);
 
     return new SuccessResponse(
       projects,
