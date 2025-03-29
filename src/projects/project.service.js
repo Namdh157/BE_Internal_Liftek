@@ -1,7 +1,10 @@
 const Project = require("./project.model.js");
 const User = require("../users/user.model.js");
 const mongoose = require("mongoose");
+const removeAccents = require("remove-accents");
+
 exports.createProject = async (data) => {
+  console.log("Project:", Project);
   const existingProject = await Project.findOne({ code: data.code });
   const managerExists = await isUserExist(data.managerId);
   if (!managerExists) {
@@ -31,15 +34,7 @@ exports.createProject = async (data) => {
   if (existingProject) {
     throw new Error(`Mã code ${data.code} đã tồn tại!`);
   }
-  return await Project.create({
-    name: data.name,
-    code: data.code,
-    description: data.description,
-    status: data.status,
-    managerId: data.managerId._id,
-    members: memberIds,
-    priority: data.priority,
-  });
+  return await Project.create(data);
 };
 
 exports.getAllProjects = async (userId, skip, limit) => {
@@ -100,10 +95,10 @@ exports.updateProject = async (id, data) => {
     }
   }
 
- // ✅ Nếu muốn **xóa** thành viên
+  // ✅ Nếu muốn **xóa** thành viên
   if (Array.isArray(data.removeMembers) && data.removeMembers.length > 0) {
-    const removeIds = data.removeMembers.map(member => member._id);
-    memberIds = memberIds.filter(id => !removeIds.includes(id));
+    const removeIds = data.removeMembers.map((member) => member._id);
+    memberIds = memberIds.filter((id) => !removeIds.includes(id));
   }
   updateData.members = memberIds; // Cập nhật danh sách members
 
@@ -115,7 +110,11 @@ exports.updateProject = async (id, data) => {
   });
 
   // Cập nhật vào MongoDB với `$set`
-  return await Project.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+  return await Project.findByIdAndUpdate(
+    id,
+    { $set: updateData },
+    { new: true }
+  );
 };
 
 exports.deleteProject = async (id) => {
@@ -143,6 +142,14 @@ exports.countProjects = async (userId) => {
     $or: [{ managerId: userId }, { members: { $in: [userId] } }],
   });
 };
+exports.countNameProjects = async (userId, name) => {
+  const cleanName = name.trim();
+  const slugNames = removeAccents.remove(cleanName.toLowerCase());
+  return await Project.countDocuments({
+    $or: [{ managerId: userId }, { members: { $in: [userId] } }],
+    slugName: { $regex: slugNames, $options: "i" },
+  });
+};
 // exports.FindProjectByTitle = async (idUser, keyword) => {
 //   return await Project.find({
 //     owner: idUser, // Chỉ lấy dự án của user đang đăng nhập
@@ -152,9 +159,13 @@ exports.countProjects = async (userId) => {
 exports.findNameProject = async (userId, name) => {
   try {
     const cleanName = name.trim();
+    const slugNames = removeAccents.remove(cleanName.toLowerCase());
     const projects = await Project.find({
-      members: { $in: [userId] }, // Kiểm tra xem userId có nằm trong mảng members không
-      name: { $regex: cleanName, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
+      $or: [
+        { members: { $in: [userId] } }, // Kiểm tra userId có trong mảng members
+        { managerId: userId }, // Kiểm tra userId có phải là manager
+      ],
+      slugName: { $regex: slugNames, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
     });
     return projects;
   } catch (error) {

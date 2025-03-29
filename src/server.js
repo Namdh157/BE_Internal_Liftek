@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 const swaggerDocs = require("./config/swaggerConfig.js");
 const { connectRedis } = require("./config/redisClient.js");
 const ErrorMiddleware = require("./middlewares/error.middleware.js");
-const listEndpoints = require("express-list-endpoints"); // eslint-disable-line
+//const listEndpoints = require("express-list-endpoints"); // eslint-disable-line
 const app = express();
 const PORT = env.PORT;
 
@@ -23,7 +23,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use("/api/v1", router);
 swaggerDocs(app);
 

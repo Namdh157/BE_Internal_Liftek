@@ -1,14 +1,15 @@
 const mongoose = require("mongoose");
 const { PRIORITY, STATUS_PROJECT } = require("../constants/index.js");
-
+const removeAccents = require("remove-accents");
 const ProjectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    slugName: { type: String, unique: true }, // Trường không dấu để tìm kiếm
     code: { type: Number, required: true },
     description: { type: String },
     status: {
       type: Number,
-      enum: Object.values(STATUS_PROJECT), 
+      enum: Object.values(STATUS_PROJECT),
       default: STATUS_PROJECT.PROGRESSING,
     },
 
@@ -27,4 +28,11 @@ const ProjectSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Project", ProjectSchema);
+// 📌 Middleware: Chuyển đổi `name` thành `slugName` trước khi lưu
+ProjectSchema.pre("save", function (next) {
+  this.slugName = removeAccents.remove(this.name.toLowerCase()); // Loại bỏ dấu
+  next();
+});
+
+const Project = mongoose.model("Project", ProjectSchema);
+module.exports = Project;

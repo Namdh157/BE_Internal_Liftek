@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const  projectService = require("./project.service.js");
+const projectService = require("./project.service.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
 const jwt = require("jsonwebtoken");
@@ -17,9 +17,9 @@ exports.getAllProjects = async (req, res, next) => {
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
-    const idUser = req.user._id;
-    const projects = await projectService.getAllProjects(idUser, skip, limit);
-    const total = await projectService.countProjects(idUser);
+    const userId = req.user._id;
+    const projects = await projectService.getAllProjects(userId, skip, limit);
+    const total = await projectService.countProjects(userId);
 
     return new SuccessResponse(
       projects,
@@ -139,16 +139,7 @@ exports.load = async (req, res, next, id) => {
 // };
 exports.getNameProject = async (req, res, next) => {
   try {
-    // Lấy token từ header
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token)
-      // return res.status(401).json({ message: "Unauthorized" });
-      return next(new Error("Unauthorized"));
-
-    // Giải mã token để lấy userId
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id; // Giả sử token có chứa `id`
-
+    const userId = req.user._id;
     // Lấy từ khóa tìm kiếm từ query string
     const { name } = req.query;
 
@@ -160,7 +151,18 @@ exports.getNameProject = async (req, res, next) => {
     const projects = await projectService.findNameProject(userId, name);
     // Trả về kết quả
     // return res.status(200).json({ success: true, projects });
-    return new SuccessResponse(projects).send(res);
+    const page = parseInt(req.query.page) || PAGINATE.PAGE;
+    const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
+
+    const total = await projectService.countNameProjects(userId, name);
+    return new SuccessResponse(
+      projects,
+      200,
+      "success",
+      total,
+      page,
+      limit
+    ).sends(res);
   } catch (error) {
     console.error("Lỗi tìm kiếm project:", error);
     // return res.status(500).json({ message: "Lỗi server" });

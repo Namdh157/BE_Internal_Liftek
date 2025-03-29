@@ -7,7 +7,7 @@ const  emailTemplate = require("../services/templateService.js");
 const  emailQueue = require("../queues/index.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const crypto = require("crypto");
-
+const sendMail = require("../services/emailService"); 
 //đăng ký
 exports.register = async (req, res, next) => {
     try {
@@ -39,20 +39,20 @@ exports.register = async (req, res, next) => {
         const emailContent = emailTemplate.getVerificationEmailTemplate(verificationLink);
 
         // use service send email
-        // sendMail({
-        //   to: user.email,
-        //   subject: "Xác thực email",
-        //   text: "Xác thực email",
-        //   html: emailContent,
-        // })
+        sendMail({
+          to: user.email,
+          subject: "Xác thực email",
+          text: "Xác thực email",
+          html: emailContent,
+        })
 
         // use worker send email
-        await emailQueue.emailQueue.add("sendEmail", {
-            email: user.email,
-            subject: "Xác thực email",
-            text: "Xác thực emailabc",
-            html: emailContent,
-        });
+        // await emailQueue.emailQueue.add("sendEmail", {
+        //     email: user.email,
+        //     subject: "Xác thực email",
+        //     text: "Xác thực emailabc",
+        //     html: emailContent,
+        // });
         new SuccessResponse(user).send(res);
     } catch (error) {
         return next(error);

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const { uploadSingleFile } = require("../services/cloudinaryService.js");
-const  taskService = require("./task.service.js");
-const  taskStatusChangeService = require("./statusChange.service.js")
-const  taskValidator = require("./task.validation.js");
+const taskService = require("./task.service.js");
+const taskStatusChangeService = require("./statusChange.service.js");
+const taskValidator = require("./task.validation.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const PAGINATE = require("../constants/paginate.js");
 const { CHANGE_SOURCE, PERMISSIONS } = require("../constants/index.js");
@@ -26,7 +26,10 @@ exports.updateTaskStatus = async (req, res, next) => {
     const { taskId } = req.params;
     const userId = req.user._id;
 
-    if (!Object.values(STATUS).includes(oldStatus) || !Object.values(STATUS).includes(newStatus)) {
+    if (
+      !Object.values(STATUS).includes(oldStatus) ||
+      !Object.values(STATUS).includes(newStatus)
+    ) {
       return next(new Error("Trạng thái không hợp lệ !"));
     }
 
@@ -57,8 +60,7 @@ exports.addUserToTaskController = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
-
+};
 
 // lấy tất cả task theo project
 exports.getAlTaskByProject = async (req, res, next) => {
@@ -70,13 +72,15 @@ exports.getAlTaskByProject = async (req, res, next) => {
     const tasks = await taskService.getAlTaskByProject(projectId, skip, limit);
     const total = await taskService.countTaskByProject(projectId);
 
-    return new SuccessResponse(tasks, 200, "success", total, limit).sends(res);
+    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(
+      res
+    );
   } catch (error) {
     return next(error);
   }
 };
-// lọc task theo điều kiện
 
+// lọc task theo điều kiện
 exports.filterTaskController = async (req, res, next) => {
   try {
     const { projectId } = req.params;
@@ -92,35 +96,64 @@ exports.filterTaskController = async (req, res, next) => {
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
-    const searchResult = await taskService.filterTaskService(skip, limit, filter);
+    const searchResult = await taskService.filterTaskService(
+      skip,
+      limit,
+      filter
+    );
     const total = searchResult.length;
     if (searchResult.length === 0) {
       return new SuccessResponse("Không tìm thấy task nào", 404).send(res);
     }
 
-    return new SuccessResponse(searchResult, 200, "success", total, page, limit, filter).sends(res);
+    return new SuccessResponse(
+      searchResult,
+      200,
+      "success",
+      total,
+      page,
+      limit,
+      filter
+    ).sends(res);
   } catch (error) {
     return next(error);
   }
 };
 
 // tìm kiếm task
-
 exports.searchTaskByTitle = async (req, res, next) => {
   try {
+    const projectId = req.query.projectId;
     const title = req.query.search;
-    if (!title || title.lenght === 0) {
+    const assigneeIds = req.user._id;
+    if (!title || title.length === 0) {
       return next(new Error("Tiêu đề không được để trống"));
     }
     const page = parseInt(req.query.page) || PAGINATE.PAGE;
     const limit = parseInt(req.query.limit) || PAGINATE.LIMIT;
     const skip = (page - 1) * limit;
-    const tasks = await taskService.FindTaskByTitle(skip, limit, title);
-    const total = tasks.length;
-    if (tasks.length === 0) {
-      return next(new Error("Không tìm thấy task nào"));
-    }
-    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(res);
+    const tasks = await taskService.FindTaskByTitle(
+      skip,
+      limit,
+      title,
+      assigneeIds,
+      projectId
+    );
+    const total = await taskService.CountTitleTasks(
+      skip,
+      limit,
+      title,
+      assigneeIds,
+      projectId
+    );
+    console.log(total);
+    // if (tasks.length === 0) {
+    //   return next(new Error("Không tìm thấy task nào"));
+    // }
+
+    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(
+      res
+    );
   } catch (error) {
     return next(error);
   }
@@ -196,7 +229,9 @@ exports.getAllTasks = async (req, res, next) => {
     const tasks = await taskService.getAllTasks(skip, limit);
     const total = await taskService.countTasks();
 
-    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(res);
+    return new SuccessResponse(tasks, 200, "success", total, page, limit).sends(
+      res
+    );
   } catch (error) {
     return next(error);
   }
@@ -217,53 +252,85 @@ exports.getTaskById = async (req, res, next) => {
 // cập nhật task
 exports.updateTask = async (req, res, next) => {
   try {
+    const roleUser = req.user.role;
+    const checkPermission = PERMISSIONS.UPDATE_TASK.includes(roleUser);
+    if (!checkPermission) {
+      return next(new Error("Bạn không có quyền cập nhật công việc!!!"));
+    }
     const id = req.task._id;
-    const dataBody = req.body;
-    if (typeof dataBody.assigneeId === "string") {
-      dataBody.assigneeId = dataBody.assigneeId.split(",");
+    //const dataBody = req.body;
+
+    const existingTask = await taskService.getTaskById(id);
+    if (!existingTask) {
+      return next(new Error("Task không tìm thấy"));
     }
 
-    const invalidAssigneeId = dataBody.assigneeId.filter(
-      (id) => !mongoose.Types.ObjectId.isValid(id)
-    );
-    if (invalidAssigneeId.length > 0) {
-      return next(new Error("Id của assignee không hợp lệ"));
+    // Sao chép dữ liệu cũ để giữ nguyên các trường không có trong req.body
+    const updatedData = { ...existingTask.toObject(), ...req.body };
+
+    // Chuyển đổi assigneeId thành mảng chứa chuỗi ID
+    if (Array.isArray(updatedData.assigneeId)) {
+      updatedData.assigneeId = updatedData.assigneeId.map((id) =>
+        id.toString()
+      );
+    }
+    // Kiểm tra và xử lý assigneeId nếu có trong request
+    if (updatedData.assigneeId) {
+      if (typeof updatedData.assigneeId === "string") {
+        updatedData.assigneeId = updatedData.assigneeId.split(",");
+      }
+
+      const invalidAssigneeId = updatedData.assigneeId.filter(
+        (id) => !mongoose.Types.ObjectId.isValid(id)
+      );
+      if (invalidAssigneeId.length > 0) {
+        return next(new Error("Id của assignee không hợp lệ"));
+      }
+
+      const assigneeIdsFromDB = await taskService.checkAssigneeId(
+        updatedData.assigneeId
+      );
+      if (assigneeIdsFromDB.length !== updatedData.assigneeId.length) {
+        return next(new Error("Người được giao nhiệm vụ không hợp lệ"));
+      }
     }
 
-    // kiểm tra id của assignee có id nào trong bẳng user không
-    const assigneeIds = dataBody.assigneeId;
-    const assigneeIdsFromDB = await taskService.checkAssigneeId(assigneeIds);
-    if (assigneeIdsFromDB.length !== assigneeIds.length) {
-      return next(new Error("người được giao nhiệm vụ không hợp lệ"));
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(dataBody.assignerId)) {
+    // Kiểm tra assignerId nếu có trong request
+    if (
+      updatedData.assignerId &&
+      !mongoose.Types.ObjectId.isValid(updatedData.assignerId)
+    ) {
       return next(new Error("Id của assigner không hợp lệ"));
     }
 
-    //kiểm tra id của assigner có id nào trong bảng user không
-    const assignerId = dataBody.assignerId;
-    const assignerIdFromDB = await taskService.checkAssignerId(assignerId);
-    if (!assignerIdFromDB) {
-      return next(new Error("Người giao việc không hợp lệ"));
+    if (updatedData.assignerId) {
+      const assignerIdFromDB = await taskService.checkAssignerId(
+        updatedData.assignerId
+      );
+      if (!assignerIdFromDB) {
+        return next(new Error("Người giao việc không hợp lệ"));
+      }
     }
-    const { error } = taskValidator.updateTaskValidator.validate(dataBody, { abortEarly: false });
+
+    // Validate dữ liệu cập nhật
+    const { error } = taskValidator.updateTaskValidator.validate(updatedData, {
+      abortEarly: false,
+    });
 
     if (error) {
       const errors = error.details.map((err) => err.message);
-      return next(new Error(errors))
+      return next(new Error(errors));
     }
 
+    // Nếu có file mới thì cập nhật ảnh
     if (req.file) {
       const filePath = req.file.buffer;
       const imageUrl = await uploadSingleFile(filePath);
-      dataBody.image = imageUrl.secure_url;
+      updatedData.image = imageUrl.secure_url;
     }
 
-    const task = await taskService.editTask(id, dataBody);
-
-    if (!task) next(new Error("Task không tìm thấy"));
-
+    // Cập nhật task
+    const task = await taskService.editTask(id, updatedData);
     return new SuccessResponse(task).send(res);
   } catch (error) {
     return next(error);
@@ -303,16 +370,37 @@ exports.deleteManyTask = async (req, res, next) => {
   }
 };
 
+// exports.load = async (req, res, next, id) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return next(new Error("Status không phù hợp"));;
+//     }
+//     const task = await taskService.FindTaskById(id);
+//     if (!task) return next(new Error("Task không tìm thấy"));
+//     req.task = task;
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 exports.load = async (req, res, next, id) => {
   try {
+    console.log("Middleware loaded with ID:", id);
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return next(new Error("Status không phù hợp"));;
+      console.log(id);
+      return next(new Error("ID không hợp lệ"));
     }
+
     const task = await taskService.FindTaskById(id);
+    console.log("Task found:", task);
+
     if (!task) return next(new Error("Task không tìm thấy"));
+
     req.task = task;
     next();
   } catch (error) {
+    console.error("Error in load middleware:", error);
     next(error);
   }
 };
