@@ -3,7 +3,7 @@ const { authSchema } = require("./components/authComponent.js");
 const { taskSchema } = require("./components/taskComponent.js");
 const { projectSchema } = require("./components/projectComponent.js");
 const taskSwagger = require("./task.js");
-const socketSwagger = require("./socket.js");
+
 const projectSwagger = require("./project.js");
 const dotenv = require("dotenv");
 const { userSwagger } = require("./user.js");
@@ -35,7 +35,6 @@ const swaggerDocs = {
     ...projectSwagger,
     ...userSwagger,
     ...CmtSwagger,
-    ...socketSwagger,
   },
   components: {
     securitySchemes: {

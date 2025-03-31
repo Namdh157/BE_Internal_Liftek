@@ -5,7 +5,7 @@ const ProjectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     slugName: { type: String, unique: true }, // Trường không dấu để tìm kiếm
-    code: { type: Number, required: true },
+    code: { type: String, required: true },
     description: { type: String },
     status: {
       type: Number,
@@ -24,7 +24,6 @@ const ProjectSchema = new mongoose.Schema(
       enum: Object.values(PRIORITY),
       default: PRIORITY.LOW,
     },
-   
   },
   { timestamps: true }
 );
