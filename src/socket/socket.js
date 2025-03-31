@@ -1,4 +1,4 @@
-const { Server} = require("socket.io");
+const { Server } = require("socket.io");
 const User = require("../users/user.model.js");
 const jwt = require("jsonwebtoken");
 
@@ -14,19 +14,16 @@ const initSocket = (server) => {
       console.error("Không có header Authorization");
       return next(new Error("Không có token"));
     }
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
+
+    const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       socket.userId = decoded.id;
+      console.log(">>>", decoded);
       next();
     } catch (error) {
       console.error("Lỗi xác thực JWT:", error.message);
-      if (error.name === "TokenExpiredError") {
-        return next(new Error("jwt expired"));
-      }
-      return next(new Error("Token không hợp lệ"));
+      return next(new Error(error.name === "TokenExpiredError" ? "jwt expired" : "Token không hợp lệ"));
     }
   });
 
@@ -35,34 +32,25 @@ const initSocket = (server) => {
     socket.join(socket.userId);
 
     const user = await User.findById(socket.userId);
-    if (!user.isOnline) {
+    if (user && !user.isOnline) {
       await User.findByIdAndUpdate(socket.userId, { isOnline: true });
       io.emit("update_user_online", await getOnlineUsers());
     }
 
+    console.log(await getOnlineUsers());
+
     socket.on("disconnect", async () => {
       console.log(`User ${socket.userId} disconnected`);
-      if (io.sockets.adapter.rooms.get(socket.userId)?.size === 0) {
+
+      const room = io.sockets.adapter.rooms.get(socket.userId);
+      if (!room || room.size === 0) {
         await User.findByIdAndUpdate(socket.userId, { isOnline: false });
         io.emit("update_user_online", await getOnlineUsers());
       }
     });
   });
-
-  const getOnlineUsers = async () => {
-    return await User.find({ isOnline: true }).select(
-      "_id userName email avatar"
-    );
-  };
-
-  setInterval(async () => {
-    try {
-      const onlineUsers = await getOnlineUsers();
-      io.emit("update_user_online", onlineUsers);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách user online:", error);
-    }
-  }, 10000);
 };
 
-module.exports =  initSocket;
+const getOnlineUsers = async () => User.find({ isOnline: true }).select("_id userName email avatar");
+
+module.exports = initSocket;

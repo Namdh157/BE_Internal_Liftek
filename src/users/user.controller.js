@@ -2,6 +2,7 @@ const { uploadSingleFile } = require("../services/cloudinaryService.js");
 const SuccessResponse = require("../utils/SuccessResponse.js");
 const userService = require("./user.service.js");
 
+
 exports.getUserById = async (req, res, next) => {
   const id = req.user._id;
   try {
@@ -64,3 +65,20 @@ exports.load = async (req, res, next, id) => {
     return next(error);
   }
 };
+
+// exports.getOnlineUsers = async (req, res) => {
+//   try {
+//     const onlineUsers = await User.find({ isOnline: true }).select(
+//       "_id userName email avatar" 
+//     );
+//     console.log(onlineUsers);
+//     if (!res) {
+//       console.error("Lỗi: res bị undefined");
+//       return;
+//     }
+//     return new SuccessResponse(onlineUsers).send(res);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ success: false, message: "Lỗi server" });
+//   }
+// };

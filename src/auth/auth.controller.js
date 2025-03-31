@@ -133,15 +133,15 @@ console.log(">>>", user.isOnline)
 //làm mới token
 exports.getNewAccessToken = async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
-  const user = req.user._id;
+  // const user = req.user._id;
   if (!refreshToken) return next(new Error("Token không hợp lệ"));
 
   try {
     const decode = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 
     if (!decode) return next(new Error("Token không hợp lệ"));
-    user.isOnline = true;
-    await user.save();
+    // user.isOnline = true;
+    // await user.save();
   } catch (error) {
     return next(error);
   }
@@ -154,6 +154,7 @@ exports.logout = async (req, res, next) => {
     if (!user) return next(new Error("User không tồn tại"));
     user.isOnline = false;
     await user.save();
+    
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: false, // local
